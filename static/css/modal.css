@@ -1,0 +1,155 @@
+.contenedor-modal {
+    align-items: center;
+    animation: mostrar 0.3s ease;
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+@keyframes mostrar {
+    from { 
+        opacity: 0; 
+    }
+
+    to { 
+        opacity: 1;
+    }
+}
+
+.modal {
+    animation: deslizarAbajo 0.3s ease;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    overflow: hidden;
+    width: 100%;
+}
+
+@keyframes deslizarAbajo {
+    from { 
+        transform: translateY(-20px); 
+        opacity: 0; 
+    }
+
+    to { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
+}
+
+.cabecera-modal {
+    align-items: center;
+    background-color: #4b7bec;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+}
+
+.cabecera-modal h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.cabecera-modal span {
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.cabecera-modal span:hover {
+    color: #ff4757;
+    transform: scale(1.2);
+}
+
+.cuerpo-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.cuerpo-modal form .control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.cuerpo-modal form label {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.cuerpo-modal form input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.cuerpo-modal form input[type="text"]:focus {
+    border-color: #4b7bec;
+    box-shadow: 0 0 5px rgba(75,123,236,0.3);
+    outline: none;
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 0.3rem;
+}
+
+.cuerpo-modal fieldset {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+}
+
+.cuerpo-modal legend {
+    font-weight: 600;
+    padding: 0 0.3rem;
+}
+
+.cuerpo-modal form button[type="submit"] {
+    background-color: #4b7bec;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.cuerpo-modal form button[type="submit"]:hover {
+    background-color: #3867d6;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 500px) {
+    .modal {
+        padding: 0.5rem;
+        width: 100%;
+    }
+
+    .cabecera-modal h1 {
+        font-size: 1rem;
+    }
+}

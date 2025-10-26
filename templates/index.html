@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icon/repo-crafter.png') }}" type="image/x-icon">
+    <title>Repo Crafter - PyJa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Repo Crafter - Pyja</h1>
+    </header>
+    <main>
+        <div class="contenedor-acciones">
+            <div class="buscador">
+                <input type="search" name="buscador" id="buscador" placeholder="Buscar por: nombre | visibilidad">
+            </div>
+            <div class="acciones">
+                <button type="button" onclick="abrirModal()">Crear repo</button>
+                <form action="" method="post">
+                    <button type="submit">Clonar todo</button>
+                </form>
+            </div>
+        </div>
+        <table id="tabla-repos">
+            <thead>
+                <th>Nombre</th>
+                <th>Visibilidad</th>
+                <th>Gestión</th>
+            </thead>
+            <tbody>
+                {% for repo in repos %}
+                <tr>
+                    <td data-label="Nombre">{{ repo.name }}</td>
+                    <td data-label="Visibilidad">{{ 'Privado' if repo.private else 'Público' }}</td>
+                    <td data-label="Gestión">
+                        <div class="botones">
+                            <form action="/clona_repo/{{ repo.name }}/{{ 'privado' if repo.private else 'publico' }}" method="post">
+                                <button type="submit" title="clonar">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button>
+                            </form>
+                            <form action="/elimina_repo/{{ repo.name }}" method="post">
+                                <button type="submit" title="eliminar">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">
+                        <div class="contenedor-total-repos">
+                            <span>Total de repositorios:</span>
+                            <span id="total-repos">{{ repos | length }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <!-- Modal -->
+        <div class="contenedor-modal">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>Crear repositorio</h1>
+                    <span class="material-symbols-outlined">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="/crea_repo" method="post" enctype="multipart/form-data">
+                        <div class="control">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" name="nombre" id="nombre">
+                        </div>
+                        <fieldset>
+                            <legend>¿Privado?:</legend>
+                            <div class="radio-group">
+                                <input type="radio" id="si" name="visibilidad" value="si" checked>
+                                <label for="si">Si</label>
+
+                                <input type="radio" id="no" name="visibilidad" value="no">
+                                <label for="no">No</label>
+                            </div>
+                        </fieldset>
+                        <button type="submit">Crear</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        &copy; Todos los derechos reservados 2025 - JeironPro
+    </footer>
+    <script src="{{ url_for('static', filename='js/buscador.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+</body>
+</html>
