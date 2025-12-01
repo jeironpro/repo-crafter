@@ -126,6 +126,26 @@
     padding: 0 0.3rem;
 }
 
+.cuerpo-modal form select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.cuerpo-modal form select:focus {
+    border-color: #4b7bec;
+    box-shadow: 0 0 5px rgba(75,123,236,0.3);
+    outline: none;
+}
+
+.cuerpo-modal form select option {
+    padding: 0.5rem;
+}
+
 .cuerpo-modal form button {
     background-color: #4b7bec;
     border: none;

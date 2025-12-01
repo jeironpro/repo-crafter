@@ -64,7 +64,11 @@
                         {% if repo.private %}
                             No disponible
                         {% else %}
-                            {{ 'Creada' if repo.has_pages else 'No creada' }}
+                            {% if repo.has_pages %}
+                                <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank">Creada</a>
+                            {% else %}
+                                No creada
+                            {% endif %}
                             <form action="/crea_elimina_pagina/{{ repo.name }}" method="post">
                                 <label class="visibilidad">
                                     <input type="checkbox" name="crea-pagina" id="crea-pagina" {% if repo.has_pages %} checked {% endif %}>
@@ -127,6 +131,15 @@
                                 <label for="no">No</label>
                             </div>
                         </fieldset>
+                        <div class="control">
+                            <label for="gitignore">Selecciona .gitignore</label>
+                            <select name="gitignore" id="gitignore">
+                                <option value="">Ninguno</option>
+                                {% for template in templetes_gitignore %}
+                                    <option value="{{ template }}">{{ template }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         <button type="submit">Crear</button>
                     </form>
                 </div>

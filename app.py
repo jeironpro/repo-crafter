@@ -2,6 +2,7 @@ import os
 import secrets
 import requests
 import subprocess
+import base64
 from flask import Flask, render_template, redirect, flash, request
 from dotenv import load_dotenv
 from pathlib import Path
@@ -16,6 +17,7 @@ load_dotenv()
 GITHUB_USER = os.getenv("GITHUB_USER")
 GITHUB_EMAIL= os.getenv("GITHUB_EMAIL")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITIGNORE_REPO = "https://api.github.com/repos/github/gitignore/contents"
 
 API_GITHUB="https://api.github.com/user/repos"
 CABECERAS = {
@@ -64,7 +66,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-def auxiliar_crea_repo(nombre, visibilidad):
+def obtener_templates_gitignore():
+    respuesta = requests.get(GITIGNORE_REPO)
+    templates = []
+
+    if respuesta.status_code == 200:
+        for archivo in respuesta.json():
+            if archivo["name"].endswith(".gitignore"):
+                templates.append(archivo["name"].replace(".gitignore", ""))
+    return templates
+
+def descargar_template(template):
+    url = f"{GITIGNORE_REPO}/{template}"
+    respuesta = requests.get(url)
+
+    if respuesta.status_code == 200:
+        contenido = respuesta.json()["content"]
+        return base64.b64decode(contenido).decode()
+    return ""
+
+def auxiliar_crea_repo(nombre, visibilidad, gitignore):
     sesion = requests.Session()
     sesion.auth = (GITHUB_USER, GITHUB_TOKEN)
 
@@ -76,18 +97,34 @@ def auxiliar_crea_repo(nombre, visibilidad):
     os.makedirs(carpeta_repo, exist_ok=True)
 
     ruta_readme = carpeta_repo / "README.md"
-    with open(ruta_readme, "w", encoding="utf-8") as fitxer:
-        fitxer.write(README_TEMPLATE.format(project_name=nombre))
+    with open(ruta_readme, "w", encoding="utf-8") as fichero:
+        fichero.write(README_TEMPLATE.format(project_name=nombre))
 
     ruta_license = carpeta_repo / "LICENSE"
-    with open(ruta_license, "w", encoding="utf-8") as fitxer:
-        fitxer.write(LICENSE_TEMPLATE.format(year=YEAR, user=GITHUB_USER))
+    with open(ruta_license, "w", encoding="utf-8") as fichero:
+        fichero.write(LICENSE_TEMPLATE.format(year=YEAR, user=GITHUB_USER))
+
+    ruta_gitignore = carpeta_repo / ".gitignore"
+
+    if gitignore:
+        nombre_gitignore = f"{gitignore}.gitignore"
+        contenido_gitignore = descargar_template(nombre_gitignore)
+
+        if contenido_gitignore:
+            with open(ruta_gitignore, "w", encoding="utf-8") as fichero:
+                fichero.write(contenido_gitignore)
+        else:
+            print(f"⚠️ No se pudo descargar el template '{gitignore}'. Se omitirá el .gitignore.")
 
     subprocess.run(["git", "-C", str(carpeta_repo), "init"], check=True)
 
     subprocess.run(["git", "-C", str(carpeta_repo), "branch", "-M", "main"], check=True)
 
     archivos = ["LICENSE", "README.md"]
+
+    if gitignore and ruta_gitignore.exists():
+        archivos.append(".gitignore")
+
     subprocess.run(["git", "-C", str(carpeta_repo), "add", *archivos], check=True)
 
     subprocess.run([
@@ -95,7 +132,7 @@ def auxiliar_crea_repo(nombre, visibilidad):
         "-C", str(carpeta_repo),
         "-c", f"user.name={GITHUB_USER}",
         "-c", f"user.email={GITHUB_EMAIL}",
-        "commit", "-m", "Agregando README & LICENSE"
+        "commit", "-m", "Creando estructura inicial"
         ], check=True
     )
 
@@ -174,14 +211,17 @@ def index():
         repos.extend(datos)
         pagina += 1
 
-    return render_template("index.html", repos=repos)
+    templetes_gitignore = obtener_templates_gitignore()
+
+    return render_template("index.html", repos=repos, templetes_gitignore=templetes_gitignore)
 
 @app.route("/crea_repo", methods=["POST"])
 def crea_repo():
     nombre = request.form.get("nombre")
     visibilidad = request.form.get("visibilidad") == "si"
+    gitignore = request.form.get("gitignore")
 
-    mensaje = auxiliar_crea_repo(nombre, visibilidad)
+    mensaje = auxiliar_crea_repo(nombre, visibilidad, gitignore)
     flash(mensaje, "success" if "✅" in mensaje else "error")
     return redirect("/")
 
