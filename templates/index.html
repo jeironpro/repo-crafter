@@ -37,6 +37,38 @@
                 </form>
             </div>
         </div>
+        <div class="estadisticas-globales">
+            <div class="contenedor-estadisticas privados">
+                <span class="icono">
+                    <span class="material-symbols-outlined">folder_off</span>
+                </span>
+                <div class="etiqueta-valor">
+                    <span class="etiqueta">Repositorios privados</span>
+                    <span class="valor">{{ repos_privados }}</span>
+                </div>
+            </div>
+            <div class="contenedor-estadisticas publicos">
+                <span class="material-symbols-outlined icono">folder_open</span>
+                <div class="etiqueta-valor">
+                    <span class="etiqueta">Repositorios publicos</span>
+                    <span class="valor">{{ repos_publicos }}</span>
+                </div>
+            </div>
+            <div class="contenedor-estadisticas total">
+                <span class="material-symbols-outlined icono">folder_copy</span>
+                <div class="etiqueta-valor">
+                    <span class="etiqueta">Repositorios totales</span>
+                    <span class="valor">{{ repos|length }}</span>
+                </div>
+            </div>
+            <div class="contenedor-estadisticas paginas-creadas">
+                <span class="material-symbols-outlined icono">docs_add_on</span>
+                <div class="etiqueta-valor">
+                    <span class="etiqueta">Paginas creadas</span>
+                    <span class="valor">{{ paginas_creadas }}</span>
+                </div>
+            </div>
+        </div>
         <table id="tabla-repos">
             <thead>
                 <th>Nombre</th>
@@ -97,16 +129,6 @@
                 </tr>
                 {% endfor %}
             </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4">
-                        <div class="contenedor-total-repos">
-                            <span>Total de repositorios:</span>
-                            <span id="total-repos">{{ repos | length }}</span>
-                        </div>
-                    </td>
-                </tr>
-            </tfoot>
         </table>
         <!-- Modal crea repo -->
         <div class="contenedor-modal" id="modal-crea-repo">

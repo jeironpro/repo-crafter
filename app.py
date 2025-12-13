@@ -146,7 +146,7 @@ def auxiliar_crea_repo(nombre, visibilidad, gitignore):
 
     if respuesta.status_code in [201, 422]:
         subprocess.run(["git", "-C", str(carpeta_repo), "remote", "remove", "origin"], check=False, stderr=subprocess.DEVNULL)
-        subprocess.run(["git", "-C", str(carpeta_repo), "remote", "add", "origin", f"git@github.com:{GITHUB_USER}/{nombre}.git"], check=True)
+        subprocess.run(["git", "-C", str(carpeta_repo), "remote", "add", "origin", f"git@github.com-personal:{GITHUB_USER}/{nombre}.git"], check=True)
         subprocess.run(["git", "-C", str(carpeta_repo), "push", "-u", "origin", "main"], check=True)
         return f"✅ Repositorio '{nombre}' creado y subido correctamente."
     else:
@@ -196,6 +196,9 @@ def index():
     parametros = {"per_page": 100}
     repos = []
     pagina = 1
+    contador_repo_privados = 0
+    contador_repo_publicos = 0
+    contador_paginas_creadas = 0
 
     while True:
         parametros["page"] = pagina
@@ -213,7 +216,23 @@ def index():
 
     templetes_gitignore = obtener_templates_gitignore()
 
-    return render_template("index.html", repos=repos, templetes_gitignore=templetes_gitignore)
+    for repo in repos:
+        if repo["has_pages"]:
+            contador_paginas_creadas += 1
+        if repo["private"]:
+            contador_repo_privados += 1
+        else:
+            contador_repo_publicos += 1
+
+
+    return render_template(
+        "index.html", 
+        repos=repos, 
+        repos_publicos=contador_repo_publicos, 
+        paginas_creadas=contador_paginas_creadas, 
+        repos_privados=contador_repo_privados, 
+        templetes_gitignore=templetes_gitignore
+    )
 
 @app.route("/crea_repo", methods=["POST"])
 def crea_repo():

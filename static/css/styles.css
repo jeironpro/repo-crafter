@@ -3,6 +3,7 @@
     font-family: 'Mulish', sans-serif;
     margin: 0;
     padding: 0;
+    user-select: none;
 }
 
 body {
@@ -81,6 +82,57 @@ header h1 {
 main {
     flex: 1;
     padding: 0 2rem 2rem 2rem;
+}
+
+.estadisticas-globales {
+    align-items: center;
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+    margin: 20px auto;
+}
+
+.estadisticas-globales .contenedor-estadisticas {
+    border-radius: 10px;
+    box-shadow: 1px 2px 2px 1px rgba(0,0,0,0.4);
+    display: flex;
+    gap: 30px;
+    padding: 15px;
+    width: 100%;
+}
+
+.estadisticas-globales .contenedor-estadisticas .icono {
+    align-items: center;
+    border-radius: 50%;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    width: 50px;
+}
+
+.estadisticas-globales .contenedor-estadisticas .etiqueta-valor {
+    display: flex;
+    flex-direction: column;
+}
+
+.estadisticas-globales .contenedor-estadisticas .etiqueta-valor .etiqueta {
+    font-weight: 800;
+}
+
+.privados .icono {
+    background-color: #4bec58;
+}
+
+.publicos .icono {
+    background-color: #4b7bec;
+}
+
+.total .icono {
+    background-color: #ece94b;
+}
+
+.paginas-creadas .icono {
+    background-color: #c8d5c0;
 }
 
 table {
