@@ -1,4 +1,4 @@
-# repo-crafter-pyja
+# repo-crafter
 
 ## 📌 Descripción
 Este proyecto forma parte de mi portafolio personal.  

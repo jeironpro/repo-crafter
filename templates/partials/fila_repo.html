@@ -1,0 +1,52 @@
+<tr>
+    <td data-label="Nombre">{{ repo.name }}</td>
+    <td data-label="Visibilidad">
+        {{ 'Privado' if repo.private else 'Público' }}
+        <form action="/cambiar_visibilidad/{{ repo.name }}" method="post">
+            <label class="visibilidad">
+                <input type="checkbox" name="cambia-visibilidad" id="cambia-visibilidad" {% if repo.private %} checked
+                    {% endif %}>
+                <span class="deslizante">
+                    <span class="material-symbols-outlined icono privado" title="privado">lock</span>
+                    <span class="material-symbols-outlined icono publico" title="publico">public</span>
+                </span>
+            </label>
+        </form>
+    </td>
+    <td data-label="Página">
+        {% if repo.private %}
+        No disponible
+        {% else %}
+        {% if repo.has_pages %}
+        <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank">Creada</a>
+        {% else %}
+        Sin creación
+        {% endif %}
+        <form action="/crea_elimina_pagina/{{ repo.name }}" method="post">
+            <label class="visibilidad">
+                <input type="checkbox" name="crea-pagina" id="crea-pagina" {% if repo.has_pages %} checked {% endif %}>
+                <span class="deslizante">
+                    <span class="material-symbols-outlined icono privado" title="privado">unarchive</span>
+                    <span class="material-symbols-outlined icono publico" title="publico">pages</span>
+                </span>
+            </label>
+        </form>
+        {% endif %}
+    </td>
+    <td data-label="Gestión">
+        <div class="botones">
+            <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}"
+                data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                <span class="material-symbols-outlined">content_copy</span>
+            </button>
+            <button type="button" class="boton-actualizar" title="actualizar" data-nombre="{{ repo.name }}"
+                data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                <span class="material-symbols-outlined">update</span>
+            </button>
+
+            <button type="button" class="boton-eliminar" title="eliminar" data-nombre="{{ repo.name }}">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
+        </div>
+    </td>
+</tr>

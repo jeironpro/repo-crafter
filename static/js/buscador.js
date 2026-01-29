@@ -3,24 +3,34 @@ function eliminarAcentos(texto) {
 }
 
 const buscador = document.getElementById("buscador");
-const tabla = document.getElementById("tabla-repos");
-const filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-const totalRepos = document.getElementById("total-repos");
+const tarjetasRepo = document.querySelectorAll(".tarjeta-repo");
 
 buscador.addEventListener("input", function() {
-    const filtro = this.value.toLowerCase();
-    let contador = 0;
+    const filtro = eliminarAcentos(this.value.toLowerCase());
 
-    for (let i = 0; i < filas.length; i++) {
-        const nombre = eliminarAcentos(filas[i].getElementsByTagName("td")[0].textContent.toLowerCase());
-        const visibilidad = eliminarAcentos(filas[i].getElementsByTagName('td')[1].textContent.toLowerCase());
+    tarjetasRepo.forEach(tarjeta => {
+        const nombre = eliminarAcentos(tarjeta.querySelector(".tarjeta-nombre").textContent.toLowerCase());
+        const filas = tarjeta.querySelectorAll(".tarjeta-fila");
         
-        if (nombre.includes(filtro) || visibilidad.includes(filtro)) {
-            filas[i].style.display = '';
-            contador++;
+        let visibilidad = "";
+        let pagina = "";
+        
+        // Buscar información de visibilidad y página en las filas
+        filas.forEach(fila => {
+            const etiqueta = eliminarAcentos(fila.querySelector(".tarjeta-etiqueta").textContent.toLowerCase());
+            const valor = eliminarAcentos(fila.querySelector(".tarjeta-valor").textContent.toLowerCase());
+            
+            if (etiqueta.includes("visibilidad")) {
+                visibilidad = valor;
+            } else if (etiqueta.includes("página")) {
+                pagina = valor;
+            }
+        });
+        
+        if (nombre.includes(filtro) || visibilidad.includes(filtro) || pagina.includes(filtro)) {
+            tarjeta.style.display = '';
         } else {
-            filas[i].style.display = 'none';
+            tarjeta.style.display = 'none';
         }
-    }
-    totalRepos.textContent = contador;
+    });
 });

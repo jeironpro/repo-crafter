@@ -1,23 +1,60 @@
 .contenedor-mensaje {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
     z-index: 2000;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 400px;
 }
 
 .mensaje {
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     color: #fff;
-    font-weight: 600;
-    min-width: 200px;
-    padding: 10px;
+    font-weight: 700;
+    padding: 15px 20px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mensaje::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
 }
 
 .mensaje.success { 
-    background-color: #4caf50;
+    background: #28a745;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 } 
 
-.mensaje.error   { 
-    background-color: #e74c3c;
+.mensaje.error { 
+    background: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }

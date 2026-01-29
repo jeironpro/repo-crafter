@@ -3,7 +3,7 @@ import secrets
 import requests
 import subprocess
 import base64
-from flask import Flask, render_template, redirect, flash, request
+from flask import Flask, render_template, redirect, flash, request, jsonify
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
@@ -193,6 +193,15 @@ def auxiliar_clona_repos():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
+    FRONTEND = []
+    BACKEND = []
+    CREATE_MODIFY_WITH_AI = []
+    OTROS = []
+
+    FRONTEND_TAG = {"frontend"}
+    BACKEND_TAG = {"backend"}
+    CREATE_MODIFY_WITH_AI_TAGS = {"create-with-ai", "modify-with-ai"}
+
     parametros = {"per_page": 100}
     repos = []
     pagina = 1
@@ -224,14 +233,31 @@ def index():
         else:
             contador_repo_publicos += 1
 
+        if set(repo.get("topics", [])) & FRONTEND_TAG:
+            FRONTEND.append(repo)
+        
+        if set(repo.get("topics", [])) & BACKEND_TAG:
+            BACKEND.append(repo)
 
+        if set(repo.get("topics", [])) & CREATE_MODIFY_WITH_AI_TAGS:
+            CREATE_MODIFY_WITH_AI.append(repo)
+
+        if not set(repo.get("topics", [])) & FRONTEND_TAG and not set(repo.get("topics", [])) & BACKEND_TAG and not set(repo.get("topics", [])) & CREATE_MODIFY_WITH_AI_TAGS:
+            OTROS.append(repo)
+
+
+    total_repos = contador_repo_publicos + contador_repo_privados
     return render_template(
         "index.html", 
-        repos=repos, 
+        frontend=FRONTEND,
+        backend=BACKEND,
+        repo_ia=CREATE_MODIFY_WITH_AI,
+        otros=OTROS, 
         repos_publicos=contador_repo_publicos, 
         paginas_creadas=contador_paginas_creadas, 
         repos_privados=contador_repo_privados, 
-        templetes_gitignore=templetes_gitignore
+        templetes_gitignore=templetes_gitignore,
+        total_repos=total_repos
     )
 
 @app.route("/crea_repo", methods=["POST"])
@@ -261,8 +287,9 @@ def estado_repo(visibilidad, nombre):
     carpeta_repo = CARPETA_REPOS / visibilidad  / nombre
 
     if not carpeta_repo.exists():
-        flash(f"El repositorio {carpeta_repo} no existe.", "error")
-        return redirect("/")
+        return jsonify({
+            "error": f"El repositorio {nombre} no existe"
+        }), 404
     
     resultado = subprocess.run(
         ["git", "-C", str(carpeta_repo), "status", "--porcelain"],

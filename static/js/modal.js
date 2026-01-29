@@ -51,7 +51,11 @@ botonesActualizaRepo.forEach(boton => {
 
         try {
             const respuesta = await fetch(`/estado_repo/${visibilidad}/${nombre}`);
-            if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
+
+            if (!respuesta.ok) {
+                const texto = await respuesta.text();
+                throw new Error(`Error: ${texto} - Estado: ${respuesta.status}`);
+            }
             const datos = await respuesta.json();
 
             const lista = document.getElementById("lista-archivos");
