@@ -25,7 +25,7 @@ CABECERAS = {
     "Accept": "application/vnd.github+json"
 }
 HOME = Path.home()
-CARPETA_REPOS = HOME / "Documentos" / "repositorios"
+CARPETA_REPOS = HOME / "Repositorios"
 
 # Año actual para la licencia
 YEAR = datetime.now().year
@@ -92,7 +92,7 @@ def auxiliar_crea_repo(nombre, visibilidad, gitignore):
     carpeta_repo = CARPETA_REPOS / ("privado" if visibilidad else "publico") / nombre
 
     if carpeta_repo.exists():
-        return f"❌ La carpeta '{carpeta_repo}' ya existe localmente." 
+        return f"Error: La carpeta '{carpeta_repo}' ya existe localmente." 
     
     os.makedirs(carpeta_repo, exist_ok=True)
 
@@ -114,7 +114,7 @@ def auxiliar_crea_repo(nombre, visibilidad, gitignore):
             with open(ruta_gitignore, "w", encoding="utf-8") as fichero:
                 fichero.write(contenido_gitignore)
         else:
-            print(f"⚠️ No se pudo descargar el template '{gitignore}'. Se omitirá el .gitignore.")
+            print(f"Aviso: No se pudo descargar el template '{gitignore}'. Se omitirá el .gitignore.")
 
     subprocess.run(["git", "-C", str(carpeta_repo), "init"], check=True)
 
@@ -146,11 +146,11 @@ def auxiliar_crea_repo(nombre, visibilidad, gitignore):
 
     if respuesta.status_code in [201, 422]:
         subprocess.run(["git", "-C", str(carpeta_repo), "remote", "remove", "origin"], check=False, stderr=subprocess.DEVNULL)
-        subprocess.run(["git", "-C", str(carpeta_repo), "remote", "add", "origin", f"git@github.com-personal:{GITHUB_USER}/{nombre}.git"], check=True)
+        subprocess.run(["git", "-C", str(carpeta_repo), "remote", "add", "origin", f"git@github.com:{GITHUB_USER}/{nombre}.git"], check=True)
         subprocess.run(["git", "-C", str(carpeta_repo), "push", "-u", "origin", "main"], check=True)
-        return f"✅ Repositorio '{nombre}' creado y subido correctamente."
+        return f"Repositorio '{nombre}' creado y subido correctamente."
     else:
-        return f"❌ Error creando repo en GitHub: {respuesta.status_code} {respuesta.text}"
+        return f"Error creando repo en GitHub: {respuesta.status_code} {respuesta.text}"
 
 def auxiliar_clona_repo(nombre, visibilidad):
     carpeta_repo = CARPETA_REPOS / visibilidad / nombre
@@ -158,9 +158,9 @@ def auxiliar_clona_repo(nombre, visibilidad):
     
     try:
         subprocess.run(["git", "clone", url_clona, carpeta_repo], check=True)
-        return f"Repositorio '{nombre}' clonado en {carpeta_repo} ✅"
+        return f"Repositorio '{nombre}' clonado en {carpeta_repo} correctamente."
     except subprocess.CalledProcessError:
-        return f"Error al clona '{nombre}' ❌"
+        return f"Error al clonar '{nombre}'"
 
 def auxiliar_clona_repos():
     pagina = 1
@@ -189,25 +189,17 @@ def auxiliar_clona_repos():
                 subprocess.run(["git", "clone", enlace_ssh, str(carpeta_repo)], check=True)
 
         pagina += 1
-    return f"Todos los repositorios han sido clonados en {CARPETA_REPOS} ✅"
+    return f"Todos los repositorios han sido clonados en {CARPETA_REPOS} correctamente"
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    FRONTEND = []
-    BACKEND = []
-    CREATE_MODIFY_WITH_AI = []
-    OTROS = []
-
-    FRONTEND_TAG = {"frontend"}
-    BACKEND_TAG = {"backend"}
-    CREATE_MODIFY_WITH_AI_TAGS = {"create-with-ai", "modify-with-ai"}
-
     parametros = {"per_page": 100}
     repos = []
     pagina = 1
     contador_repo_privados = 0
     contador_repo_publicos = 0
     contador_paginas_creadas = 0
+    all_topics_set = set()
 
     while True:
         parametros["page"] = pagina
@@ -232,32 +224,19 @@ def index():
             contador_repo_privados += 1
         else:
             contador_repo_publicos += 1
-
-        if set(repo.get("topics", [])) & FRONTEND_TAG:
-            FRONTEND.append(repo)
-        
-        if set(repo.get("topics", [])) & BACKEND_TAG:
-            BACKEND.append(repo)
-
-        if set(repo.get("topics", [])) & CREATE_MODIFY_WITH_AI_TAGS:
-            CREATE_MODIFY_WITH_AI.append(repo)
-
-        if not set(repo.get("topics", [])) & FRONTEND_TAG and not set(repo.get("topics", [])) & BACKEND_TAG and not set(repo.get("topics", [])) & CREATE_MODIFY_WITH_AI_TAGS:
-            OTROS.append(repo)
-
+        all_topics_set.update(repo.get("topics", []))
 
     total_repos = contador_repo_publicos + contador_repo_privados
+    all_topics = sorted(all_topics_set)
     return render_template(
         "index.html", 
-        frontend=FRONTEND,
-        backend=BACKEND,
-        repo_ia=CREATE_MODIFY_WITH_AI,
-        otros=OTROS, 
+        repos=repos,
         repos_publicos=contador_repo_publicos, 
         paginas_creadas=contador_paginas_creadas, 
         repos_privados=contador_repo_privados, 
         templetes_gitignore=templetes_gitignore,
-        total_repos=total_repos
+        total_repos=total_repos,
+        all_topics=all_topics
     )
 
 @app.route("/crea_repo", methods=["POST"])
@@ -267,19 +246,19 @@ def crea_repo():
     gitignore = request.form.get("gitignore")
 
     mensaje = auxiliar_crea_repo(nombre, visibilidad, gitignore)
-    flash(mensaje, "success" if "✅" in mensaje else "error")
+    flash(mensaje, "success" if "correctamente" in mensaje else "error")
     return redirect("/")
 
 @app.route("/clona_repo/<nombre>/<visibilidad>", methods=["POST"])
 def clona_repo(nombre, visibilidad):
     mensaje = auxiliar_clona_repo(nombre, visibilidad)
-    flash(mensaje, "success" if "✅" in mensaje else "error")
+    flash(mensaje, "success" if "correctamente" in mensaje else "error")
     return redirect("/")
 
 @app.route("/clona_repos", methods=["POST"])
 def clona_repos():
     mensaje = auxiliar_clona_repos()
-    flash(mensaje, "success" if "✅" in mensaje else "error")
+    flash(mensaje, "success" if "correctamente" in mensaje else "error")
     return redirect("/")
 
 @app.route("/estado_repo/<visibilidad>/<nombre>", methods=["GET"])

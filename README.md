@@ -1,11 +1,11 @@
 # repo-crafter
 
-## 📌 Descripción
+## Descripción
 Este proyecto forma parte de mi portafolio personal.  
 El objetivo es demostrar buenas prácticas de programación, organización y documentación en GitHub.  
 El proyecto se mejoró visualmente usando el modelo de OpenCode.
 
-## 🧰 Uso
+## Uso
 Para utilizar esta aplicación, sigue estos pasos:
 
 ### 1. Crea y configura un entorno virtual python:
@@ -36,6 +36,6 @@ Para utilizar esta aplicación, sigue estos pasos:
         - GITHUB_USER=tu_usuario_de_github
         - GITHUB_EMAIL=tu_email_de_github
 
-## 📜 Licencia
+## Licencia
 Este proyecto está bajo la licencia **MIT**.  
 Consulta el archivo [LICENSE](LICENSE) para más detalles.
