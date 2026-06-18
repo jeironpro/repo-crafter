@@ -24,8 +24,8 @@
                     placeholder="Buscar por: nombre | visibilidad | página">
                 <select name="filtro-tema" id="filtro-tema">
                     <option value="">Todos los temas</option>
-                    {% for topic in all_topics %}
-                    <option value="{{ topic }}">{{ topic }}</option>
+                    {% for topic, count in topic_count.items() %}
+                        <option value="{{ topic }}">{{ topic }} ({{count}})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -89,7 +89,9 @@
                     <div class="tarjeta-header">
                         <h3 class="tarjeta-nombre">
                             <span class="material-symbols-outlined repo-icon">folder</span>
-                            {{ repo.name }}
+                            <a href="{{ repo.svn_url }}" target="_blank"  class="enlace-repo">
+                                {{ repo.name }}
+                            </a>
                             {% if repo.topics %}
                             <span class="topic-badges">
                                 {% for topic in repo.topics %}

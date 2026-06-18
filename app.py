@@ -7,6 +7,7 @@ from flask import Flask, render_template, redirect, flash, request, jsonify
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
+from collections import Counter
 
 app = Flask(__name__)
 
@@ -199,7 +200,7 @@ def index():
     contador_repo_privados = 0
     contador_repo_publicos = 0
     contador_paginas_creadas = 0
-    all_topics_set = set()
+    topic_count = Counter()
 
     while True:
         parametros["page"] = pagina
@@ -224,10 +225,12 @@ def index():
             contador_repo_privados += 1
         else:
             contador_repo_publicos += 1
-        all_topics_set.update(repo.get("topics", []))
+
+        topics = repo.get("topics", [])
+        topic_count.update(topics)
 
     total_repos = contador_repo_publicos + contador_repo_privados
-    all_topics = sorted(all_topics_set)
+
     return render_template(
         "index.html", 
         repos=repos,
@@ -236,7 +239,7 @@ def index():
         repos_privados=contador_repo_privados, 
         templetes_gitignore=templetes_gitignore,
         total_repos=total_repos,
-        all_topics=all_topics
+        topic_count=topic_count
     )
 
 @app.route("/crea_repo", methods=["POST"])

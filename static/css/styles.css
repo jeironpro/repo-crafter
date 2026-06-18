@@ -308,6 +308,10 @@ main {
     white-space: nowrap;
 }
 
+.enlace-repo {
+    color: var(--text-primary);
+}
+
 .topic-badges {
     display: inline-flex;
     gap: 0.25rem;

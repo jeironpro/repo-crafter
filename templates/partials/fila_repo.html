@@ -1,5 +1,9 @@
 <tr>
-    <td data-label="Nombre">{{ repo.name }}</td>
+    <td data-label="Nombre">
+        <a href="{{ repo.svn_url }}" target="_blank" class="enlace-repo">
+            {{ repo.name }}
+        </a>
+    </td>
     <td data-label="Visibilidad">
         {{ 'Privado' if repo.private else 'Público' }}
         <form action="/cambiar_visibilidad/{{ repo.name }}" method="post">
@@ -15,22 +19,22 @@
     </td>
     <td data-label="Página">
         {% if repo.private %}
-        No disponible
+            No disponible
         {% else %}
-        {% if repo.has_pages %}
-        <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank">Creada</a>
-        {% else %}
-        Sin creación
-        {% endif %}
-        <form action="/crea_elimina_pagina/{{ repo.name }}" method="post">
-            <label class="visibilidad">
-                <input type="checkbox" name="crea-pagina" id="crea-pagina" {% if repo.has_pages %} checked {% endif %}>
-                <span class="deslizante">
-                    <span class="material-symbols-outlined icono privado" title="privado">unarchive</span>
-                    <span class="material-symbols-outlined icono publico" title="publico">pages</span>
-                </span>
-            </label>
-        </form>
+            {% if repo.has_pages %}
+                <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank">Creada</a>
+            {% else %}
+                Sin creación
+            {% endif %}
+            <form action="/crea_elimina_pagina/{{ repo.name }}" method="post">
+                <label class="visibilidad">
+                    <input type="checkbox" name="crea-pagina" id="crea-pagina" {% if repo.has_pages %} checked {% endif %}>
+                    <span class="deslizante">
+                        <span class="material-symbols-outlined icono privado" title="privado">unarchive</span>
+                        <span class="material-symbols-outlined icono publico" title="publico">pages</span>
+                    </span>
+                </label>
+            </form>
         {% endif %}
     </td>
     <td data-label="Gestión">
