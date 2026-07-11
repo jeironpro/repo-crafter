@@ -151,8 +151,14 @@
                             <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-clonar">content_copy</span>
                             </button>
+                            <button type="button" class="boton-confirmar" title="confirmar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                                <span class="material-symbols-outlined icono-confirmar">heap_snapshot_large</span>
+                            </button>
                             <button type="button" class="boton-actualizar" title="actualizar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-actualizar">update</span>
+                            </button>
+                            <button type="button" class="boton-taguear" title="taguear" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                                <span class="material-symbols-outlined icono-taguear">loyalty</span>
                             </button>
                             <button type="button" class="boton-eliminar" title="eliminar" data-nombre="{{ repo.name }}">
                                 <span class="material-symbols-outlined icono-eliminar">delete</span>
@@ -230,20 +236,56 @@
             </div>
         </div>
         <!-- Modal actualiza repo -->
-        <div class="contenedor-modal" id="modal-actualiza-repo">
+        <div class="contenedor-modal" id="modal-confirma-repo">
             <div class="modal">
                 <div class="cabecera-modal">
                     <h1>Actualiza repo</h1>
-                    <span class="material-symbols-outlined" id="cerrar-modal-actualiza-repo">close</span>
+                    <span class="material-symbols-outlined" id="cerrar-modal-confirma-repo">close</span>
                 </div>
                 <div class="cuerpo-modal">
-                    <form action="" method="post" id="form-actualiza-repo">
+                    <form action="" method="post" id="form-confirma-repo">
                         <ul id="lista-archivos"></ul>
                         <div class="control">
                             <label for="mensaje-commit">Mensaje</label>
                             <input type="text" name="mensaje-commit" id="mensaje-commit">
                         </div>
                         <button type="submit">Commit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal actualiza repo -->
+        <div class="contenedor-modal" id="modal-actualiza-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>¿Desea enviar la actualización de la repo?</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-actualiza-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-actualiza-repo">
+                        <button type="submit">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal taguea repo -->
+        <div class="contenedor-modal" id="modal-taguea-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>Taguea repo</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-taguea-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-taguea-repo">
+                        <div class="control">
+                            <label for="version-tag">Versión</label>
+                            <input type="text" name="version-tag" id="version-tag">
+                        </div>
+                        <div class="control">
+                            <label for="mensaje-tag">Mensaje</label>
+                            <input type="text" name="mensaje-tag" id="mensaje-tag">
+                        </div>
+                        <button type="submit">Taguear</button>
                     </form>
                 </div>
             </div>

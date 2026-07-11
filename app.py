@@ -306,9 +306,17 @@ def commit_repo(visibilidad, nombre):
             "-c", f"user.email={GITHUB_EMAIL}",
             "commit", "-m", mensaje
         ])
+
+        flash(f"Instantenea creada en {carpeta_repo} con {len(archivos)} archivo(s)", "success")
+        return redirect("/")
+        
+@app.route("/push_repo/<visibilidad>/<nombre>", methods=["POST"])
+def push_repo(visibilidad, nombre):
+        carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+
         subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", "main"])
 
-        flash(f"Repositorio actualizado en {carpeta_repo} con {len(archivos)} archivo(s)", "success")
+        flash(f"Repositorio actualizado en {carpeta_repo}", "success")
         return redirect("/")
 
 @app.route("/cambiar_visibilidad/<nombre>", methods=["POST"])
@@ -379,6 +387,25 @@ def elimina_repo(nombre):
         flash(f"Error {respuesta.status_code}: {respuesta.json().get('message')}")
         return redirect("/")
     return redirect("/")
+    
+@app.route('/crea_tag/<visibilidad>/<nombre>', methods=["POST"])
+def crea_tag(visibilidad, nombre):
+	mensaje = request.form.get("mensaje-tag")
+	version = request.form.get("version-tag")
+	
+	carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+	
+	subprocess.run([
+		"git", "-C", str(carpeta_repo), 
+		"-c", f"user.name={GITHUB_USER}", 
+		"-c", f"user.email={GITHUB_EMAIL}",
+		"tag", "-a", f"{version}", 
+		"-m", f"{mensaje}"
+	])
+	subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", f"{version}"])
+
+	flash(f"Repositorio tagueado correctamente", "success")
+	return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)

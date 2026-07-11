@@ -40,11 +40,11 @@ modalClonaRepos.addEventListener('click', (e) => {
     }
 });
 
-const botonesActualizaRepo = document.querySelectorAll(".boton-actualizar");
-const modalActualizaRepo = document.getElementById('modal-actualiza-repo');
-const formularioCommit = document.getElementById('form-actualiza-repo');
+const botonesConfirmaRepo = document.querySelectorAll(".boton-confirmar");
+const modalConfirmaRepo = document.getElementById('modal-confirma-repo');
+const formularioCommit = document.getElementById('form-confirma-repo');
 
-botonesActualizaRepo.forEach(boton => {
+botonesConfirmaRepo.forEach(boton => {
     boton.addEventListener("click", async () => {
         const nombre = boton.dataset.nombre;
         const visibilidad = boton.dataset.visibilidad;
@@ -91,7 +91,7 @@ botonesActualizaRepo.forEach(boton => {
             }
 
             formularioCommit.action = `/commit_repo/${visibilidad}/${nombre}`;
-            modalActualizaRepo.style.display = 'flex';
+            modalConfirmaRepo.style.display = 'flex';
         } catch (error) {
             console.error("Error obteniendo estado del repo:", error);
         }
@@ -99,10 +99,52 @@ botonesActualizaRepo.forEach(boton => {
 });
 
 
+const cerrarModalConfirmaRepo = document.getElementById('cerrar-modal-confirma-repo');
+cerrarModalConfirmaRepo.addEventListener('click', () => {
+    modalConfirmaRepo.style.display = 'none';
+});
+
+
+const botonesActualizaRepo = document.querySelectorAll(".boton-actualizar");
+const modalActualizaRepo = document.getElementById('modal-actualiza-repo');
+const formularioActualiza = document.getElementById('form-actualiza-repo');
+
+botonesActualizaRepo.forEach(boton => {
+    boton.addEventListener("click", async () => {
+        const visibilidad = boton.dataset.visibilidad;
+        const nombre = boton.dataset.nombre;
+
+        formularioActualiza.action = `/push_repo/${visibilidad}/${nombre}`;
+        modalActualizaRepo.style.display = "flex";
+    });
+});
+
 const cerrarModalActualizaRepo = document.getElementById('cerrar-modal-actualiza-repo');
 cerrarModalActualizaRepo.addEventListener('click', () => {
     modalActualizaRepo.style.display = 'none';
 });
+
+
+const botonesTagueaRepo = document.querySelectorAll(".boton-taguear");
+const modalTagueaRepo = document.getElementById('modal-taguea-repo');
+const formularioTaguea = document.getElementById('form-taguea-repo');
+
+botonesTagueaRepo.forEach(boton => {
+    boton.addEventListener("click", async () => {
+        const nombre = boton.dataset.nombre;
+        const visibilidad = boton.dataset.visibilidad;
+
+        formularioTaguea.action = `/crea_tag/${visibilidad}/${nombre}`;
+        modalTagueaRepo.style.display = 'flex';
+    });
+});
+
+
+const cerrarModalTagueaRepo = document.getElementById('cerrar-modal-taguea-repo');
+cerrarModalTagueaRepo.addEventListener('click', () => {
+    modalTagueaRepo.style.display = 'none';
+});
+
 
 const botonesEliminaRepo = document.querySelectorAll(".boton-eliminar");
 const modalEliminaRepo = document.getElementById('modal-elimina-repo');
