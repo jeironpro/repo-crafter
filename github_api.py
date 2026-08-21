@@ -1,4 +1,5 @@
 import base64
+import time
 
 import requests
 
@@ -12,6 +13,25 @@ CABECERAS = {
     "Accept": "application/vnd.github+json"
 }
 
+# TTL de la caché en memoria para lecturas de la API
+CACHE_TTL_SEGUNDOS = 300
+_cache = {}
+
+
+def limpiar_cache():
+    _cache.clear()
+
+
+def _desde_cache(clave):
+    entrada = _cache.get(clave)
+    if entrada and time.monotonic() - entrada["tiempo"] < CACHE_TTL_SEGUNDOS:
+        return entrada["valor"]
+    return None
+
+
+def _a_cache(clave, valor):
+    _cache[clave] = {"valor": valor, "tiempo": time.monotonic()}
+
 
 def url_repo(nombre):
     return f"https://api.github.com/repos/{GITHUB_USER}/{nombre}"
@@ -19,6 +39,10 @@ def url_repo(nombre):
 
 def obtener_repos():
     """Devuelve todos los repositorios del usuario recorriendo la paginación."""
+    en_cache = _desde_cache("repos")
+    if en_cache is not None:
+        return en_cache
+
     repos = []
     pagina = 1
 
@@ -40,10 +64,15 @@ def obtener_repos():
         repos.extend(datos)
         pagina += 1
 
+    _a_cache("repos", repos)
     return repos
 
 
 def obtener_templates_gitignore():
+    en_cache = _desde_cache("templates_gitignore")
+    if en_cache is not None:
+        return en_cache
+
     respuesta = requests.get(GITIGNORE_REPO)
     templates = []
 
@@ -51,6 +80,8 @@ def obtener_templates_gitignore():
         for archivo in respuesta.json():
             if archivo["name"].endswith(".gitignore"):
                 templates.append(archivo["name"].replace(".gitignore", ""))
+        _a_cache("templates_gitignore", templates)
+
     return templates
 
 
