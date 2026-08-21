@@ -254,7 +254,6 @@ def cambia_nombre(nombre_actual):
             "name": nuevo_nombre,
         },
     )
-    print(respuesta)
     if respuesta.ok:
         flash("Repositorio renombrado correctamente", "success")
     else:
@@ -310,35 +309,46 @@ def estado_repo(visibilidad, nombre):
 
 @app.route("/commit_repo/<visibilidad>/<nombre>", methods=["POST"])
 def commit_repo(visibilidad, nombre):
-        archivos = request.form.getlist("archivos")
-        mensaje = request.form.get("mensaje-commit")
+    archivos = request.form.getlist("archivos")
+    mensaje = request.form.get("mensaje-commit")
 
-        if not archivos:
-            flash("Debes seleccionar al menos un archivo", "error")
-            return redirect("/")
-        
-        carpeta_repo = CARPETA_REPOS / visibilidad / nombre
- 
-        subprocess.run(["git", "-C", str(carpeta_repo), "add", *archivos])
-        subprocess.run([
-            "git", 
-            "-C", str(carpeta_repo), 
-            "-c", f"user.name={GITHUB_USER}",
-            "-c", f"user.email={GITHUB_EMAIL}",
-            "commit", "-m", mensaje
-        ])
-
-        flash(f"Instantenea creada en {carpeta_repo} con {len(archivos)} archivo(s)", "success")
+    if not archivos:
+        flash("Debes seleccionar al menos un archivo", "error")
         return redirect("/")
-        
+
+    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+
+    resultado_add = subprocess.run(["git", "-C", str(carpeta_repo), "add", *archivos])
+    if resultado_add.returncode != 0:
+        flash(f"Error al preparar los archivos en {carpeta_repo}", "error")
+        return redirect("/")
+
+    resultado_commit = subprocess.run([
+        "git",
+        "-C", str(carpeta_repo),
+        "-c", f"user.name={GITHUB_USER}",
+        "-c", f"user.email={GITHUB_EMAIL}",
+        "commit", "-m", mensaje
+    ])
+    if resultado_commit.returncode != 0:
+        flash(f"Error al crear la instantánea en {carpeta_repo}", "error")
+        return redirect("/")
+
+    flash(f"Instantánea creada en {carpeta_repo} con {len(archivos)} archivo(s)", "success")
+    return redirect("/")
+
 @app.route("/push_repo/<visibilidad>/<nombre>", methods=["POST"])
 def push_repo(visibilidad, nombre):
-        carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
 
-        subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", "main"])
+    resultado = subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", "main"])
 
-        flash(f"Repositorio actualizado en {carpeta_repo}", "success")
+    if resultado.returncode != 0:
+        flash(f"Error al actualizar el repositorio en {carpeta_repo}", "error")
         return redirect("/")
+
+    flash(f"Repositorio actualizado en {carpeta_repo}", "success")
+    return redirect("/")
 
 @app.route("/cambiar_visibilidad/<nombre>", methods=["POST"])
 def cambiar_visibilidad(nombre):
@@ -405,28 +415,37 @@ def elimina_repo(nombre):
     respuesta = requests.delete(url_elimina, headers=CABECERAS)
 
     if respuesta.status_code != 204:
-        flash(f"Error {respuesta.status_code}: {respuesta.json().get('message')}")
+        flash(f"Error {respuesta.status_code}: {respuesta.json().get('message')}", "error")
         return redirect("/")
+
+    flash(f"Repositorio '{nombre}' eliminado correctamente", "success")
     return redirect("/")
     
 @app.route('/crea_tag/<visibilidad>/<nombre>', methods=["POST"])
 def crea_tag(visibilidad, nombre):
-	mensaje = request.form.get("mensaje-tag")
-	version = request.form.get("version-tag")
-	
-	carpeta_repo = CARPETA_REPOS / visibilidad / nombre
-	
-	subprocess.run([
-		"git", "-C", str(carpeta_repo), 
-		"-c", f"user.name={GITHUB_USER}", 
-		"-c", f"user.email={GITHUB_EMAIL}",
-		"tag", "-a", f"{version}", 
-		"-m", f"{mensaje}"
-	])
-	subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", f"{version}"])
+    mensaje = request.form.get("mensaje-tag")
+    version = request.form.get("version-tag")
 
-	flash(f"Repositorio tagueado correctamente", "success")
-	return redirect("/")
+    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+
+    resultado_tag = subprocess.run([
+        "git", "-C", str(carpeta_repo),
+        "-c", f"user.name={GITHUB_USER}",
+        "-c", f"user.email={GITHUB_EMAIL}",
+        "tag", "-a", f"{version}",
+        "-m", f"{mensaje}"
+    ])
+    if resultado_tag.returncode != 0:
+        flash("Error al crear el tag localmente", "error")
+        return redirect("/")
+
+    resultado_push = subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", f"{version}"])
+    if resultado_push.returncode != 0:
+        flash("Error al enviar el tag al repositorio remoto", "error")
+        return redirect("/")
+
+    flash("Repositorio tagueado correctamente", "success")
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)
