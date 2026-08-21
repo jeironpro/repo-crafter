@@ -21,7 +21,7 @@ def test_index_muestra_repos_y_estadisticas(cliente, repo_falso, respuesta_fake)
             return respuesta_fake(datos=[{"name": "Python.gitignore"}, {"name": "README.md"}])
         return respuesta_fake(status_code=404, texto="no encontrado")
 
-    with patch("app.requests.get", side_effect=get_falso):
+    with patch("github_api.requests.get", side_effect=get_falso):
         respuesta = cliente.get("/")
 
     assert respuesta.status_code == 200
@@ -45,8 +45,8 @@ def test_estado_repo_valida_parametros(cliente):
 
 
 def test_cambiar_visibilidad_envia_booleano(cliente, respuesta_fake):
-    with patch("app.requests.patch", return_value=respuesta_fake(status_code=200)) as patch_mock, \
-         patch("app.subprocess.run"):
+    with patch("github_api.requests.patch", return_value=respuesta_fake(status_code=200)) as patch_mock, \
+         patch("app.shutil.move"):
         cliente.post("/cambiar_visibilidad/repo-uno", data={"cambia-visibilidad": "on"})
         _, kwargs = patch_mock.call_args
         assert kwargs["json"] == {"private": True}
@@ -62,13 +62,13 @@ def test_cambia_nombre_rechaza_nombre_invalido(cliente):
 
 
 def test_elimina_repo_exito_y_error(cliente, respuesta_fake, flashes):
-    with patch("app.requests.delete", return_value=respuesta_fake(status_code=204)):
+    with patch("github_api.requests.delete", return_value=respuesta_fake(status_code=204)):
         respuesta = cliente.post("/elimina_repo/repo-uno")
     assert respuesta.status_code == 302
     assert flashes()[-1] == ("success", "Repositorio 'repo-uno' eliminado correctamente")
 
     error = respuesta_fake(datos={"message": "prohibido"}, status_code=403)
-    with patch("app.requests.delete", return_value=error):
+    with patch("github_api.requests.delete", return_value=error):
         cliente.post("/elimina_repo/repo-uno")
     assert flashes()[-1][0] == "error"
     assert "prohibido" in flashes()[-1][1]
@@ -81,7 +81,7 @@ def test_commit_repo_exige_archivos(cliente, flashes):
 
 
 def test_push_repo_reporta_error(cliente, flashes):
-    with patch("app.subprocess.run") as run_mock:
+    with patch("git_ops.subprocess.run") as run_mock:
         run_mock.return_value.returncode = 1
         respuesta = cliente.post("/push_repo/publico/repo-uno")
 
@@ -92,7 +92,7 @@ def test_push_repo_reporta_error(cliente, flashes):
 
 
 def test_crea_tag_comprueba_resultados(cliente, flashes):
-    with patch("app.subprocess.run") as run_mock:
+    with patch("git_ops.subprocess.run") as run_mock:
         run_mock.return_value.returncode = 0
         datos = {"version-tag": "v1.0", "mensaje-tag": "release"}
         respuesta = cliente.post("/crea_tag/publico/repo-uno", data=datos)
@@ -101,4 +101,4 @@ def test_crea_tag_comprueba_resultados(cliente, flashes):
 
         run_mock.return_value.returncode = 1
         cliente.post("/crea_tag/publico/repo-uno", data=datos)
-        assert flashes()[-1] == ("error", "Error al crear el tag localmente")
+        assert flashes()[-1] == ("error", "Error al crear o enviar el tag")
