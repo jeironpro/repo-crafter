@@ -16,6 +16,99 @@
   -webkit-backdrop-filter: blur(6px);
 }
 .contenedor-modal.is-abierto { display: flex; }
+.contenedor-modal--superior { z-index: 650; }
+
+/* Explorador de archivos del repo */
+.modal--explorador { width: min(34rem, 100%); }
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.9rem;
+}
+.breadcrumb button {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink-2);
+  cursor: pointer;
+  transition: background var(--dur-micro) ease, border-color var(--dur-micro) ease;
+}
+.breadcrumb button:hover { background: var(--tint-cyan); border-color: var(--color-accent-2-deep); }
+.breadcrumb button[aria-current="location"] {
+  background: var(--tint-mint);
+  border-color: var(--color-mint-deep);
+  color: var(--color-mint-deep);
+}
+.breadcrumb button:focus-visible { outline-offset: 0; }
+
+.lista-explorador {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+.lista-explorador button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: left;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition: background var(--dur-micro) ease;
+}
+.lista-explorador button:hover { background: var(--color-paper-2); }
+.lista-explorador button:focus-visible { outline-offset: -2px; }
+.lista-explorador .material-symbols-outlined { font-size: 18px; color: var(--color-muted); flex: 0 0 auto; }
+.vacio-explorador {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Visor de archivos de texto */
+.modal--visor { width: min(44rem, 100%); }
+.error-visor {
+  padding: 0.85rem 1.05rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  background: var(--tint-coral);
+  border: 1.5px solid var(--color-accent-3-deep);
+  border-radius: 14px;
+}
+.contenido-archivo {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-ink);
+  background: var(--color-paper-2);
+  border: 1.5px solid var(--color-rule);
+  border-radius: var(--radius-input);
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 
 .modal {
   width: min(26rem, 100%);

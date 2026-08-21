@@ -1,3 +1,4 @@
+import base64
 import re
 import secrets
 import shutil
@@ -107,6 +108,64 @@ def descargar_resumen():
         mimetype="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={resumen.nombre_archivo()}"}
     )
+
+
+@app.route("/archivos/<nombre>", methods=["GET"])
+def lista_archivos(nombre):
+    validar_nombre(nombre)
+
+    relativa = request.args.get("ruta", "").strip("/")
+    if ".." in relativa.split("/"):
+        abort(404)
+
+    respuesta = github_api.obtener_contenido(nombre, relativa)
+
+    if respuesta.status_code == 200:
+        entradas = respuesta.json()
+    elif respuesta.status_code == 404 and "empty" in respuesta.json().get("message", "").lower():
+        entradas = []
+    else:
+        abort(404)
+
+    if not isinstance(entradas, list):
+        abort(404)
+
+    carpetas = [{"nombre": e["name"]} for e in entradas if e.get("type") == "dir"]
+    archivos = [{"nombre": e["name"], "tamano": e.get("size", 0)} for e in entradas if e.get("type") == "file"]
+
+    return {"carpetas": carpetas, "archivos": archivos}
+
+
+@app.route("/archivo/<nombre>", methods=["GET"])
+def ver_archivo(nombre):
+    validar_nombre(nombre)
+
+    relativa = request.args.get("ruta", "").strip("/")
+    if not relativa or ".." in relativa.split("/"):
+        abort(404)
+
+    respuesta = github_api.obtener_contenido(nombre, relativa)
+
+    if respuesta.status_code != 200:
+        abort(404)
+
+    datos = respuesta.json()
+
+    if datos.get("type") != "file":
+        abort(404)
+
+    if datos.get("size", 0) > github_api.TAMANIO_MAXIMO_ARCHIVO:
+        return {"error": "El archivo supera el límite de 512 KB"}, 413
+
+    contenido = base64.b64decode(datos.get("content", ""))
+
+    if b"\0" in contenido[:8192]:
+        return {"error": "El archivo no es texto plano"}, 415
+
+    return {
+        "nombre": datos.get("name", relativa),
+        "contenido": contenido.decode("utf-8", errors="replace")
+    }
 
 
 @app.route("/topics/<nombre>", methods=["POST"])

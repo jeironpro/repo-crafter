@@ -425,7 +425,7 @@ form[action*="crea_elimina_pagina"] .visibilidad input:checked + .deslizante { b
 
 /* ── Botones de acción por tarjeta ───────────────────────── */
 .botones { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
-.boton-renombrar, .boton-topics, .boton-clonar, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
+.boton-archivos, .boton-renombrar, .boton-topics, .boton-clonar, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
   --tile: var(--color-paper-2);
   --tile-ink: var(--color-ink-2);
   display: inline-grid;
@@ -443,22 +443,22 @@ form[action*="crea_elimina_pagina"] .visibilidad input:checked + .deslizante { b
     background var(--dur-micro) ease,
     color var(--dur-micro) ease;
 }
-.boton-renombrar:hover, .boton-topics:hover { --tile: var(--color-paper-3); --tile-ink: var(--color-ink); }
+.boton-archivos:hover, .boton-renombrar:hover, .boton-topics:hover { --tile: var(--color-paper-3); --tile-ink: var(--color-ink); }
 .boton-clonar { --tile: var(--tint-lavender); --tile-ink: var(--color-lavender-deep); }
 .boton-confirmar { --tile: var(--tint-pear); --tile-ink: var(--color-accent-deep); }
 .boton-actualizar { --tile: var(--tint-cyan); --tile-ink: var(--color-accent-2-deep); }
 .boton-taguear { --tile: var(--tint-mint); --tile-ink: var(--color-mint-deep); }
 .boton-eliminar { --tile: var(--tint-coral); --tile-ink: var(--color-accent-3-deep); }
-.boton-renombrar:hover, .boton-topics:hover, .boton-clonar:hover, .boton-confirmar:hover, .boton-actualizar:hover, .boton-taguear:hover, .boton-eliminar:hover {
+.boton-archivos:hover, .boton-renombrar:hover, .boton-topics:hover, .boton-clonar:hover, .boton-confirmar:hover, .boton-actualizar:hover, .boton-taguear:hover, .boton-eliminar:hover {
   transform: translateY(-2px);
   box-shadow: 0 4.5px 0 0 oklch(20% 0.012 250 / 0.14);
 }
-.boton-renombrar:active, .boton-topics:active, .boton-clonar:active, .boton-confirmar:active, .boton-actualizar:active, .boton-taguear:active, .boton-eliminar:active {
+.boton-archivos:active, .boton-renombrar:active, .boton-topics:active, .boton-clonar:active, .boton-confirmar:active, .boton-actualizar:active, .boton-taguear:active, .boton-eliminar:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 0 oklch(20% 0.012 250 / 0.12);
   transition-duration: 70ms;
 }
-.icono-renombrar, .icono-topics, .icono-clonar, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 18px; }
+.icono-archivos, .icono-renombrar, .icono-topics, .icono-clonar, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 18px; }
 
 /* ── Paginación ──────────────────────────────────────────── */
 .paginacion {
@@ -551,12 +551,12 @@ footer {
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1080px) {
   .botones { gap: 0.3rem; }
-  .boton-renombrar, .boton-topics, .boton-clonar, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
+  .boton-archivos, .boton-renombrar, .boton-topics, .boton-clonar, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
     width: 30px;
     height: 30px;
     border-radius: 10px;
   }
-  .icono-renombrar, .icono-topics, .icono-clonar, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 16px; }
+  .icono-archivos, .icono-renombrar, .icono-topics, .icono-clonar, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 16px; }
 }
 
 @media (max-width: 768px) {
