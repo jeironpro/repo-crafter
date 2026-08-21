@@ -6,7 +6,7 @@ from collections import Counter
 from flask import Flask, render_template, redirect, flash, request, jsonify, abort
 from flask_wtf import CSRFProtect
 
-from config import GITHUB_USER, CARPETA_REPOS
+from config import GITHUB_USER, CARPETA_REPOS, YEAR
 import github_api
 import git_ops
 
@@ -71,7 +71,8 @@ def index():
         repos_privados=contador_repo_privados,
         templates_gitignore=templates_gitignore,
         total_repos=total_repos,
-        topic_count=topic_count
+        topic_count=topic_count,
+        year=YEAR
     )
 
 

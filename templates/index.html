@@ -5,18 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ url_for('static', filename='icon/repo-crafter.png') }}" type="image/x-icon">
     <title>Repo Crafter</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap"
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mensaje.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Repo Crafter</h1>
+    <a class="sr-only skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="cabecera">
+        <div class="cabecera__inner">
+            <span class="marca" aria-hidden="true"><span class="material-symbols-outlined">folder_open</span></span>
+            <h1>Repo Crafter</h1>
+            <span class="cabecera__hash">crear · clonar · commitear · enviar</span>
+        </div>
     </header>
-    <main>
+    <main id="contenido">
         <div class="contenedor-acciones">
             <div class="buscador">
                 <span class="material-symbols-outlined search-icon">search</span>
@@ -41,13 +50,13 @@
             {% endif %}
             {% endwith %}
             <div class="acciones">
-                <button type="button" id="abrir-modal-crea-repo">Crear repo</button>
-                <button type="button" id="abrir-modal-clona-repos">Clonar todo</button>
+                <button type="button" class="btn btn--soft" id="abrir-modal-clona-repos">Clonar todo</button>
+                <button type="button" class="btn" id="abrir-modal-crea-repo">Crear repo</button>
             </div>
         </div>
         <div class="estadisticas-globales">
             <div class="contenedor-estadisticas privados">
-                <span class="icono">
+                <span class="icono-tile" aria-hidden="true">
                     <span class="material-symbols-outlined">folder_off</span>
                 </span>
                 <div class="etiqueta-valor">
@@ -56,21 +65,27 @@
                 </div>
             </div>
             <div class="contenedor-estadisticas publicos">
-                <span class="material-symbols-outlined icono">folder_open</span>
+                <span class="icono-tile" aria-hidden="true">
+                    <span class="material-symbols-outlined">folder_open</span>
+                </span>
                 <div class="etiqueta-valor">
                     <span class="etiqueta">Repositorios publicos</span>
                     <span class="valor">{{ repos_publicos }}</span>
                 </div>
             </div>
             <div class="contenedor-estadisticas total">
-                <span class="material-symbols-outlined icono">folder_copy</span>
+                <span class="icono-tile" aria-hidden="true">
+                    <span class="material-symbols-outlined">folder_copy</span>
+                </span>
                 <div class="etiqueta-valor">
                     <span class="etiqueta">Repositorios totales</span>
                     <span class="valor">{{ total_repos }}</span>
                 </div>
             </div>
             <div class="contenedor-estadisticas paginas-creadas">
-                <span class="material-symbols-outlined icono">docs_add_on</span>
+                <span class="icono-tile" aria-hidden="true">
+                    <span class="material-symbols-outlined">docs_add_on</span>
+                </span>
                 <div class="etiqueta-valor">
                     <span class="etiqueta">Paginas creadas</span>
                     <span class="valor">{{ paginas_creadas }}</span>
@@ -88,7 +103,7 @@
                 <div class="tarjeta-repo" data-topics="{{ repo.topics | join(',') }}">
                     <div class="tarjeta-header">
                         <h3 class="tarjeta-nombre">
-                            <span class="material-symbols-outlined repo-icon">folder</span>
+                            <span class="repo-icon-tile" aria-hidden="true"><span class="material-symbols-outlined">folder</span></span>
                             <a href="{{ repo.svn_url }}" target="_blank"  class="enlace-repo">
                                 {{ repo.name }}
                             </a>
@@ -185,7 +200,7 @@
                             <label for="nuevo-nombre">Nuevo nombre</label>
                             <input type="text" name="nuevo-nombre" id="nuevo-nombre">
                         </div>
-                        <button type="submit">Cambiar</button>
+                        <button type="submit" class="btn">Cambiar</button>
                     </form>
                 </div>
             </div>
@@ -223,7 +238,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <button type="submit">Crear</button>
+                        <button type="submit" class="btn">Crear</button>
                     </form>
                 </div>
             </div>
@@ -238,8 +253,8 @@
                 <div class="cuerpo-modal">
                     <form action="/clona_repos" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="button" id="boton-cerrar-modal-clona-repos">No</button>
-                        <button type="submit">Si</button>
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-clona-repos">No</button>
+                        <button type="submit" class="btn">Si</button>
                     </form>
                 </div>
             </div>
@@ -254,8 +269,8 @@
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-clona-repo">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="button" id="boton-cerrar-modal-clona-repo">No</button>
-                        <button type="submit">Si</button>
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-clona-repo">No</button>
+                        <button type="submit" class="btn">Si</button>
                     </form>
                 </div>
             </div>
@@ -275,7 +290,7 @@
                             <label for="mensaje-commit">Mensaje</label>
                             <input type="text" name="mensaje-commit" id="mensaje-commit">
                         </div>
-                        <button type="submit">Commit</button>
+                        <button type="submit" class="btn">Commit</button>
                     </form>
                 </div>
             </div>
@@ -290,7 +305,7 @@
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-actualiza-repo">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit">Enviar</button>
+                        <button type="submit" class="btn btn--cyan">Enviar</button>
                     </form>
                 </div>
             </div>
@@ -313,7 +328,7 @@
                             <label for="mensaje-tag">Mensaje</label>
                             <input type="text" name="mensaje-tag" id="mensaje-tag">
                         </div>
-                        <button type="submit">Taguear</button>
+                        <button type="submit" class="btn">Taguear</button>
                     </form>
                 </div>
             </div>
@@ -328,15 +343,21 @@
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-elimina-repo">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="button" id="boton-cerrar-modal-elimina-repo">No</button>
-                        <button type="submit">Si</button>
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-elimina-repo">No</button>
+                        <button type="submit" class="btn btn--coral">Si, eliminar</button>
                     </form>
                 </div>
             </div>
         </div>
     </main>
     <footer>
-        &copy; Todos los derechos reservados 2025 - JeironPro
+        <div class="footer__inner">
+            <p class="footer__statement">Todos tus repos, a mano.</p>
+            <div class="footer__meta">
+                <span>&copy; {{ year }} — JeironPro</span>
+                <span class="footer__hash">crear · clonar · commitear · enviar · taguear</span>
+            </div>
+        </div>
     </footer>
     <script src="{{ url_for('static', filename='js/buscador.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
@@ -344,5 +365,6 @@
     <script src="{{ url_for('static', filename='js/mensaje.js') }}"></script>
     <script src="{{ url_for('static', filename='js/visibilidad.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pagina.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/estadisticas.js') }}"></script>
 </body>
 </html>

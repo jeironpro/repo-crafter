@@ -1,40 +1,49 @@
+/* Hallmark · mensajes flash · studied-DNA hum-07 · toasts tintados menta/coral
+ * states: success · error · auto-desvanecido (mensaje.js)
+ * Hallmark · pre-emit critique: P5 H4 E5 S4 R5 V4
+ */
+
 .contenedor-mensaje {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    z-index: 2000;
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    max-width: 360px;
+  position: fixed;
+  bottom: clamp(0.75rem, 3vh, 1.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: min(34rem, calc(100% - 1.5rem));
 }
 
 .mensaje {
-    border-radius: 6px;
-    color: #fff;
-    font-weight: 600;
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    animation: messageSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --msg-face: var(--tint-mint);
+  --msg-edge: var(--color-mint-deep);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1.05rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border: 1.5px solid var(--msg-edge);
+  border-left-width: 5px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-card-hover);
+  overflow-wrap: anywhere;
+  animation: mensaje-entra 420ms var(--ease-spring);
+}
+.mensaje.success { --msg-edge: var(--color-mint-deep); }
+.mensaje.success::before { content: "check_circle"; font-family: "Material Symbols Outlined"; color: var(--color-mint-deep); font-size: 20px; line-height: 1.3; }
+.mensaje.error { --msg-edge: var(--color-accent-3-deep); }
+.mensaje.error::before { content: "error"; font-family: "Material Symbols Outlined"; color: var(--color-accent-3-deep); font-size: 20px; line-height: 1.3; }
+
+@keyframes mensaje-entra {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
 
-@keyframes messageSlide {
-    from {
-        transform: translateX(80%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.mensaje.success {
-    background: #16a34a;
-}
-
-.mensaje.error {
-    background: #dc2626;
+@media (prefers-reduced-motion: reduce) {
+  .mensaje { animation: none; }
 }
