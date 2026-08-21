@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from werkzeug.exceptions import NotFound
 
+import github_api
 from app import ruta_repo
 
 
@@ -102,3 +103,38 @@ def test_crea_tag_comprueba_resultados(cliente, flashes):
         run_mock.return_value.returncode = 1
         cliente.post("/crea_tag/publico/repo-uno", data=datos)
         assert flashes()[-1] == ("error", "Error al crear o enviar el tag")
+
+
+def test_obtener_repos_y_templates_usan_cache(respuesta_fake):
+    llamadas = []
+
+    def get_falso(url, **kwargs):
+        llamadas.append(url)
+        if url.startswith("https://api.github.com/user/repos"):
+            pagina = kwargs["params"].get("page", 1)
+            return respuesta_fake(datos=[{"name": "uno"}] if pagina == 1 else [])
+        return respuesta_fake(datos=[{"name": "Python.gitignore"}])
+
+    with patch("github_api.requests.get", side_effect=get_falso):
+        assert len(github_api.obtener_repos()) == 1
+        assert github_api.obtener_templates_gitignore() == ["Python"]
+        assert len(llamadas) == 3
+
+        github_api.obtener_repos()
+        github_api.obtener_templates_gitignore()
+        assert len(llamadas) == 3
+
+
+def test_limpiar_cache_fuerza_nuevas_peticiones(respuesta_fake):
+    llamadas = []
+
+    def get_falso(url, **kwargs):
+        llamadas.append(url)
+        return respuesta_fake(datos=[{"name": "Python.gitignore"}])
+
+    with patch("github_api.requests.get", side_effect=get_falso):
+        github_api.obtener_templates_gitignore()
+        github_api.limpiar_cache()
+        github_api.obtener_templates_gitignore()
+
+    assert len(llamadas) == 2

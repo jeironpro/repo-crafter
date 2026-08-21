@@ -6,7 +6,15 @@ os.environ.setdefault("GITHUB_TOKEN", "token-test")
 
 import pytest
 
+import github_api
 from app import app as app_flask
+
+
+@pytest.fixture(autouse=True)
+def limpiar_cache_api():
+    github_api.limpiar_cache()
+    yield
+    github_api.limpiar_cache()
 
 
 class RespuestaFake:
