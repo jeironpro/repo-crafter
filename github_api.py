@@ -120,6 +120,14 @@ def eliminar_repo(nombre):
     return requests.delete(url_repo(nombre), headers=CABECERAS)
 
 
+def actualizar_topics(nombre, topics):
+    return requests.put(
+        f"{url_repo(nombre)}/topics",
+        headers=CABECERAS,
+        json={"names": topics}
+    )
+
+
 def estado_pagina(nombre):
     return requests.get(f"{url_repo(nombre)}/pages", headers=CABECERAS)
 

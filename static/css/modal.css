@@ -115,6 +115,44 @@ legend {
 }
 .radio-group input:focus-visible + label { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
+/* Editor de topics (chips) */
+.chips-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.chips-topics:empty { display: none; }
+.chip-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.4rem 0.28rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: var(--tint-cyan);
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+.chip-topic::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent-2-deep); }
+.chip-topic__x {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
+}
+.chip-topic__x:hover { background: var(--tint-coral); color: var(--color-accent-3-deep); }
+.chip-topic__x:focus-visible { outline-offset: 0; }
+
 /* Lista de archivos en el modal de commit */
 #lista-archivos {
   list-style: none;
