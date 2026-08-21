@@ -106,6 +106,7 @@
                                 {{ repo.name }}
                             </a>
                             <span class="material-symbols-outlined repo-icon-edit boton-cambiar-nombre-repo" title="renombrar" role="button" tabindex="0" data-nuevo_nombre="{{ repo.name }}">edit</span>
+                            <span class="material-symbols-outlined repo-icon-edit boton-topics-repo" title="editar topics" role="button" tabindex="0" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">sell</span>
                             {% if repo.topics %}
                             <span class="topic-badges">
                                 {% for topic in repo.topics %}
@@ -327,6 +328,28 @@
                 </div>
             </div>
         </div>
+        <!-- Modal topics repo -->
+        <div class="contenedor-modal" id="modal-topics-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1 id="titulo-modal-topics">Topics</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-topics-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-topics-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="topics" id="topics-finales">
+                        <div class="control">
+                            <label for="entrada-topic">Topics (máx. 20 · minúsculas, números y guiones)</label>
+                            <div id="chips-topics" class="chips-topics"></div>
+                            <input type="text" name="entrada-topic" id="entrada-topic"
+                                placeholder="Añade un topic y pulsa Enter" autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <!-- Modal elimina repo -->
         <div class="contenedor-modal" id="modal-elimina-repo">
             <div class="modal">
@@ -357,6 +380,7 @@
     <script src="{{ url_for('static', filename='js/paginacion.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/topics.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mensaje.js') }}"></script>
     <script src="{{ url_for('static', filename='js/visibilidad.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pagina.js') }}"></script>

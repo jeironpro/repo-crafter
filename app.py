@@ -22,6 +22,7 @@ csrf = CSRFProtect(app)
 # Validación de parámetros de ruta contra path traversal
 VISIBILIDADES = {"publico", "privado"}
 NOMBRE_REPO_RE = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
+TOPIC_RE = re.compile(r"^[a-z0-9-]{1,50}$")
 
 
 def validar_nombre(nombre):
@@ -108,6 +109,33 @@ def descargar_resumen():
     )
 
 
+@app.route("/topics/<nombre>", methods=["POST"])
+def guarda_topics(nombre):
+    validar_nombre(nombre)
+
+    crudos = request.form.get("topics", "")
+    topics = [topic.strip().lower() for topic in crudos.split(",") if topic.strip()]
+
+    if len(topics) > 20:
+        flash("Un repositorio puede tener como máximo 20 topics", "error")
+        return redirect("/")
+
+    invalidos = [topic for topic in topics if not TOPIC_RE.match(topic)]
+    if invalidos:
+        flash(f"Topics inválidos: {', '.join(invalidos)}. Solo minúsculas, números y guiones (máx. 50 caracteres)", "error")
+        return redirect("/")
+
+    respuesta = github_api.actualizar_topics(nombre, topics)
+
+    if respuesta.status_code in [200, 204]:
+        github_api.limpiar_cache()
+        flash(f"Topics de '{nombre}' actualizados correctamente", "success")
+    else:
+        flash(f"No se pudieron actualizar los topics de '{nombre}'", "error")
+
+    return redirect("/")
+
+
 @app.route("/cambia_nombre/<nombre_actual>", methods=["POST"])
 def cambia_nombre(nombre_actual):
     validar_nombre(nombre_actual)
@@ -117,6 +145,7 @@ def cambia_nombre(nombre_actual):
     respuesta = github_api.renombrar_repo(nombre_actual, nuevo_nombre)
 
     if respuesta.ok:
+        github_api.limpiar_cache()
         flash("Repositorio renombrado correctamente", "success")
     else:
         flash("Ocurrio un error al renombrar el repositorio", "error")
@@ -214,6 +243,7 @@ def cambiar_visibilidad(nombre):
     respuesta = github_api.cambiar_visibilidad_repo(nombre, privado)
 
     if respuesta.status_code == 200:
+        github_api.limpiar_cache()
         if antigua_ruta_repo.exists():
             shutil.move(antigua_ruta_repo, nueva_ruta_repo)
         flash(f"Cambiada repo '{nombre}' de {anterior_visibilidad} a {nueva_visibilidad}", "success")
@@ -232,6 +262,7 @@ def crea_elimina_pagina(nombre):
     if estado.status_code == 200:
         respuesta = github_api.eliminar_pagina(nombre)
         if respuesta.status_code == 204:
+            github_api.limpiar_cache()
             flash("Página eliminada correctamente", "success")
             return redirect("/")
         flash(f"No se pudo eliminar la página: {respuesta.text}", "error")
@@ -240,6 +271,7 @@ def crea_elimina_pagina(nombre):
     if estado.status_code == 404:
         respuesta = github_api.crear_pagina(nombre)
         if respuesta.status_code in [201, 204]:
+            github_api.limpiar_cache()
             flash("Pagina creada correctamente", "success")
             return redirect("/")
         flash("No se ha podido crear la pagina", "error")
@@ -259,6 +291,7 @@ def elimina_repo(nombre):
         flash(f"Error {respuesta.status_code}: {respuesta.json().get('message')}", "error")
         return redirect("/")
 
+    github_api.limpiar_cache()
     flash(f"Repositorio '{nombre}' eliminado correctamente", "success")
     return redirect("/")
 
