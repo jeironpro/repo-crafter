@@ -12,32 +12,19 @@ function filtrarRepos() {
 
     tarjetasRepo.forEach(tarjeta => {
         const nombre = eliminarAcentos(tarjeta.querySelector(".tarjeta-nombre").textContent.toLowerCase());
-        const filas = tarjeta.querySelectorAll(".tarjeta-fila");
+        const visibilidad = tarjeta.dataset.visibilidad || "";
+        const pagina = (tarjeta.dataset.pagina || "").replace(/-/g, " ");
         const topics = tarjeta.dataset.topics ? tarjeta.dataset.topics.split(",") : [];
-
-        let visibilidad = "";
-        let pagina = "";
-
-        filas.forEach(fila => {
-            const etiqueta = eliminarAcentos(fila.querySelector(".tarjeta-etiqueta").textContent.toLowerCase());
-            const valor = eliminarAcentos(fila.querySelector(".tarjeta-valor").textContent.toLowerCase());
-
-            if (etiqueta.includes("visibilidad")) {
-                visibilidad = valor;
-            } else if (etiqueta.includes("página")) {
-                pagina = valor;
-            }
-        });
 
         const coincideTexto = nombre.includes(texto) || visibilidad.includes(texto) || pagina.includes(texto);
         const coincideTema = !tema || topics.includes(tema);
 
-        if (coincideTexto && coincideTema) {
-            tarjeta.style.display = '';
-        } else {
-            tarjeta.style.display = 'none';
-        }
+        tarjeta.classList.toggle("oculta", !(coincideTexto && coincideTema));
     });
+
+    if (typeof window.actualizarPaginacion === "function") {
+        window.actualizarPaginacion();
+    }
 }
 
 buscador.addEventListener("input", filtrarRepos);

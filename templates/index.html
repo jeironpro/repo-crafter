@@ -92,22 +92,19 @@
                 </div>
             </div>
         </div>
-        <div class="list-header">
-            <span><span class="material-symbols-outlined">folder</span> Nombre</span>
-            <span><span class="material-symbols-outlined">visibility</span> Visibilidad</span>
-            <span><span class="material-symbols-outlined">language</span> Página</span>
-            <span><span class="material-symbols-outlined">more_horiz</span> Acciones</span>
-        </div>
         <div class="contenedor-repos">
             {% for repo in repos %}
-                <div class="tarjeta-repo" data-topics="{{ repo.topics | join(',') }}">
+                <div class="tarjeta-repo"
+                    data-topics="{{ repo.topics | join(',') }}"
+                    data-visibilidad="{{ 'privado' if repo.private else 'publico' }}"
+                    data-pagina="{% if repo.private %}no-disponible{% elif repo.has_pages %}creada{% else %}sin-creacion{% endif %}">
                     <div class="tarjeta-header">
                         <h3 class="tarjeta-nombre">
                             <span class="repo-icon-tile" aria-hidden="true"><span class="material-symbols-outlined">folder</span></span>
-                            <a href="{{ repo.svn_url }}" target="_blank"  class="enlace-repo">
+                            <a href="{{ repo.svn_url }}" target="_blank" rel="noopener" class="enlace-repo">
                                 {{ repo.name }}
                             </a>
-                            <span class="material-symbols-outlined repo-icon repo-icon-edit boton-cambiar-nombre-repo" data-nuevo_nombre="{{ repo.name }}">edit</span>
+                            <span class="material-symbols-outlined repo-icon-edit boton-cambiar-nombre-repo" title="renombrar" role="button" tabindex="0" data-nuevo_nombre="{{ repo.name }}">edit</span>
                             {% if repo.topics %}
                             <span class="topic-badges">
                                 {% for topic in repo.topics %}
@@ -115,56 +112,51 @@
                                 {% endfor %}
                             </span>
                             {% endif %}
-                            <span class="material-symbols-outlined chevron-acordeon">expand_more</span>
                         </h3>
-                    </div>
-                    <div class="tarjeta-contenido">
-                        <div class="tarjeta-fila">
-                            <span class="tarjeta-etiqueta">Visibilidad</span>
-                            <div class="tarjeta-valor">
-                                <span>{{ 'Privado' if repo.private else 'Público' }}</span>
-                                <form action="/cambiar_visibilidad/{{ repo.name }}" method="post" style="display: inline;">
+                        <div class="tarjeta-meta">
+                            <div class="meta-grupo">
+                                <span class="chip {{ 'chip--privado' if repo.private else 'chip--publico' }}">
+                                    <span class="material-symbols-outlined" aria-hidden="true">{{ 'lock' if repo.private else 'public' }}</span>
+                                    {{ 'Privado' if repo.private else 'Público' }}
+                                </span>
+                                <form action="/cambiar_visibilidad/{{ repo.name }}" method="post">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <label class="visibilidad">
                                         <input type="checkbox" name="cambia-visibilidad" id="cambia-visibilidad-{{ loop.index }}" {% if repo.private %} checked {% endif %}>
-                                        <span class="deslizante">
-                                            <span class="material-symbols-outlined icono privado" title="privado">lock</span>
-                                            <span class="material-symbols-outlined icono publico" title="publico">public</span>
-                                        </span>
+                                        <span class="deslizante"></span>
+                                        <span class="sr-only">Cambiar visibilidad</span>
                                     </label>
                                 </form>
                             </div>
-                        </div>
-                        <div class="tarjeta-fila">
-                            <span class="tarjeta-etiqueta">Página</span>
-                            <div class="tarjeta-valor">
-                                <span>
-                                    {% if repo.private %}
-                                        No disponible
-                                    {% else %}
-                                        {% if repo.has_pages %}
-                                            <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank" style="color: #2575fc; text-decoration: none; font-weight: 700;">Creada</a>
-                                        {% else %}
-                                            Sin creación
-                                        {% endif %}
-                                    {% endif %}
+                            <div class="meta-grupo">
+                                {% if repo.private %}
+                                <span class="chip chip--neutro">
+                                    <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                                    No disponible
                                 </span>
+                                {% elif repo.has_pages %}
+                                <span class="chip chip--pagina">
+                                    <span class="material-symbols-outlined" aria-hidden="true">language</span>
+                                    <a href="https://{{ repo.owner.login }}.github.io/{{ repo.name }}" target="_blank" rel="noopener" class="enlace-pagina">Creada</a>
+                                </span>
+                                {% else %}
+                                <span class="chip chip--neutro">
+                                    <span class="material-symbols-outlined" aria-hidden="true">language</span>
+                                    Sin creación
+                                </span>
+                                {% endif %}
                                 {% if not repo.private %}
-                                    <form action="/crea_elimina_pagina/{{ repo.name }}" method="post" style="display: inline;">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <label class="visibilidad">
-                                            <input type="checkbox" name="crea-pagina" id="crea-pagina-{{ loop.index }}" {% if repo.has_pages %} checked {% endif %}>
-                                            <span class="deslizante">
-                                                <span class="material-symbols-outlined icono privado" title="privado">unarchive</span>
-                                                <span class="material-symbols-outlined icono publico" title="publico">pages</span>
-                                            </span>
-                                        </label>
-                                    </form>
+                                <form action="/crea_elimina_pagina/{{ repo.name }}" method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <label class="visibilidad">
+                                        <input type="checkbox" name="crea-pagina" id="crea-pagina-{{ loop.index }}" {% if repo.has_pages %} checked {% endif %}>
+                                        <span class="deslizante"></span>
+                                        <span class="sr-only">Crear o eliminar página</span>
+                                    </label>
+                                </form>
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-                    <div class="tarjeta-botones">
                         <div class="botones">
                             <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-clonar">content_copy</span>
@@ -182,6 +174,7 @@
                                 <span class="material-symbols-outlined icono-eliminar">delete</span>
                             </button>
                         </div>
+                        <span class="material-symbols-outlined chevron-acordeon" aria-hidden="true">expand_more</span>
                     </div>
                 </div>
             {% endfor %}
@@ -360,6 +353,7 @@
         </div>
     </footer>
     <script src="{{ url_for('static', filename='js/buscador.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/paginacion.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mensaje.js') }}"></script>
