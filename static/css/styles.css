@@ -92,6 +92,12 @@ button { font: inherit; background: none; border: 0; padding: 0; cursor: pointer
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; pointer-events: none; transform: none; }
 .btn--cyan { --btn-face: var(--color-accent-2); --btn-ink: var(--color-paper); --btn-edge: var(--color-accent-2-deep); --btn-cast: oklch(56% 0.20 235 / 0.40); }
 .btn--coral { --btn-face: var(--color-accent-3); --btn-ink: var(--color-paper); --btn-edge: var(--color-accent-3-deep); --btn-cast: oklch(58% 0.26 18 / 0.42); }
+.btn--pear {
+  --btn-face: var(--tint-pear);
+  --btn-ink: var(--color-neutral);
+  --btn-edge: var(--color-accent-deep);
+  --btn-cast: oklch(76% 0.20 95 / 0.35);
+}
 .btn--soft {
   --btn-face: var(--color-paper-2);
   --btn-ink: var(--color-ink-2);

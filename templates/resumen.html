@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen de repositorios</title>
+    <style>
+        {{ tokens | safe }}
+    </style>
+    <style>
+        @page {
+            size: A4;
+            margin: 16mm 14mm 18mm;
+            @bottom-right {
+                content: counter(page) " / " counter(pages);
+                font-family: var(--font-label);
+                font-size: 9px;
+                letter-spacing: 0.08em;
+                color: var(--color-muted);
+            }
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 10.5pt;
+            line-height: var(--lh-normal);
+            color: var(--color-ink);
+        }
+
+        .cabecera-resumen { margin-bottom: 1.4rem; }
+        .eyebrow {
+            font-family: var(--font-label);
+            font-size: 8pt;
+            letter-spacing: var(--tracking-label);
+            text-transform: uppercase;
+            color: var(--color-muted);
+            margin: 0 0 0.45rem;
+        }
+        h1 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 22pt;
+            line-height: var(--lh-tight);
+            letter-spacing: -0.03em;
+            margin: 0 0 0.5rem;
+        }
+        .resaltado {
+            background-image: linear-gradient(var(--tint-mint) 0 0);
+            background-repeat: no-repeat;
+            background-size: 100% 0.16em;
+            background-position: 0 92%;
+        }
+        .meta {
+            display: flex;
+            gap: 1.2rem;
+            font-family: var(--font-label);
+            font-size: 8pt;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            padding-bottom: 0.9rem;
+            border-bottom: 1.5px solid var(--color-rule);
+        }
+
+        section { margin-top: 1.35rem; }
+        .titulo-seccion {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            margin: 0 0 0.55rem;
+        }
+        .titulo-seccion h2 {
+            font-family: var(--font-label);
+            font-size: 9pt;
+            font-weight: 500;
+            letter-spacing: var(--tracking-label);
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .titulo-seccion.desplegados h2 { color: var(--color-mint-deep); }
+        .titulo-seccion.publicos h2 { color: var(--color-accent-2-deep); }
+        .titulo-seccion.privados h2 { color: var(--color-lavender-deep); }
+        .conteo {
+            font-family: var(--font-label);
+            font-size: 8pt;
+            padding: 0.1rem 0.55rem;
+            border-radius: var(--radius-pill);
+        }
+        .desplegados .conteo { background: var(--tint-mint); color: var(--color-mint-deep); }
+        .publicos .conteo { background: var(--tint-cyan); color: var(--color-accent-2-deep); }
+        .privados .conteo { background: var(--tint-lavender); color: var(--color-lavender-deep); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid var(--color-rule);
+            border-radius: 6px;
+        }
+        th {
+            font-family: var(--font-label);
+            font-size: 7.5pt;
+            font-weight: 500;
+            letter-spacing: var(--tracking-label);
+            text-transform: uppercase;
+            text-align: left;
+            color: var(--color-muted);
+            background: var(--color-paper-2);
+            padding: 0.45rem 0.65rem;
+            border-bottom: 1.5px solid var(--color-rule);
+        }
+        td {
+            padding: 0.42rem 0.65rem;
+            border-bottom: 1px dashed var(--color-rule);
+            overflow-wrap: anywhere;
+        }
+        tr:last-child td { border-bottom: none; }
+        td.vacio {
+            color: var(--color-muted);
+            font-family: var(--font-label);
+            font-size: 8pt;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .chip-visibilidad {
+            font-family: var(--font-label);
+            font-size: 7.5pt;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.12rem 0.5rem;
+            border-radius: var(--radius-pill);
+        }
+        .chip-privado { background: var(--tint-lavender); color: var(--color-lavender-deep); }
+        .chip-publico { background: var(--tint-cyan); color: var(--color-accent-2-deep); }
+
+        .topics { font-family: var(--font-label); font-size: 8pt; color: var(--color-mint-deep); }
+
+        .pie {
+            margin-top: 1.6rem;
+            padding-top: 0.7rem;
+            border-top: 1px solid var(--color-rule);
+            font-family: var(--font-label);
+            font-size: 7.5pt;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+        }
+    </style>
+</head>
+<body>
+    <header class="cabecera-resumen">
+        <p class="eyebrow">Repo Crafter</p>
+        <h1>Resumen de <span class="resaltado">repositorios</span></h1>
+        <div class="meta">
+            <span>@{{ usuario }}</span>
+            <span>{{ fecha }}</span>
+            <span>{{ total }} repositorios</span>
+        </div>
+    </header>
+
+    <section class="desplegados">
+        <div class="titulo-seccion">
+            <h2>Repositorios desplegados</h2>
+            <span class="conteo">{{ grupos.desplegados | length }}</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Visibilidad</th>
+                    <th>Topics de despliegue</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repo in grupos.desplegados %}
+                <tr>
+                    <td><strong>{{ repo.name }}</strong></td>
+                    <td>
+                        <span class="chip-visibilidad {{ 'chip-privado' if repo.private else 'chip-publico' }}">
+                            {{ 'Privado' if repo.private else 'Público' }}
+                        </span>
+                    </td>
+                    <td class="topics">{{ topics_despliegue[repo.name] | join(', ') }}</td>
+                </tr>
+                {% else %}
+                <tr><td class="vacio" colspan="3">Ninguno</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="publicos">
+        <div class="titulo-seccion">
+            <h2>Repositorios públicos no desplegados</h2>
+            <span class="conteo">{{ grupos.publicos | length }}</span>
+        </div>
+        <table>
+            <tbody>
+                {% for repo in grupos.publicos %}
+                <tr><td><strong>{{ repo.name }}</strong></td></tr>
+                {% else %}
+                <tr><td class="vacio">Ninguno</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="privados">
+        <div class="titulo-seccion">
+            <h2>Repositorios privados no desplegados</h2>
+            <span class="conteo">{{ grupos.privados | length }}</span>
+        </div>
+        <table>
+            <tbody>
+                {% for repo in grupos.privados %}
+                <tr><td><strong>{{ repo.name }}</strong></td></tr>
+                {% else %}
+                <tr><td class="vacio">Ninguno</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <footer class="pie">
+        Todos tus repos, a mano. · Repo Crafter
+    </footer>
+</body>
+</html>
