@@ -124,6 +124,7 @@ button { font: inherit; background: none; border: 0; padding: 0; cursor: pointer
   box-shadow: var(--shadow-card-hover);
   z-index: 50;
 }
+.menu-resumen__lista[hidden] { display: none; }
 .menu-resumen__lista a {
   font-family: var(--font-label);
   font-size: 12px;
