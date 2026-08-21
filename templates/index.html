@@ -92,6 +92,7 @@
                             <a href="{{ repo.svn_url }}" target="_blank"  class="enlace-repo">
                                 {{ repo.name }}
                             </a>
+                            <span class="material-symbols-outlined repo-icon repo-icon-edit boton-cambiar-nombre-repo" data-nuevo_nombre="{{ repo.name }}">edit</span>
                             {% if repo.topics %}
                             <span class="topic-badges">
                                 {% for topic in repo.topics %}
@@ -167,6 +168,24 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        <!-- Modal cambiar nombre repo -->
+        <div class="contenedor-modal" id="modal-cambiar-nombre-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>Renombra repositorio</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-cambiar-nombre-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-cambiar-nombre-repo">
+                        <div class="control">
+                            <label for="nuevo-nombre">Nuevo nombre</label>
+                            <input type="text" name="nuevo-nombre" id="nuevo-nombre">
+                        </div>
+                        <button type="submit">Cambiar</button>
+                    </form>
+                </div>
+            </div>
         </div>
         <!-- Modal crea repo -->
         <div class="contenedor-modal" id="modal-crea-repo">

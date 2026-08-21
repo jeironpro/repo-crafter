@@ -336,6 +336,10 @@ main {
     flex-shrink: 0;
 }
 
+.repo-icon-edit {
+    cursor: pointer;
+}
+
 .tarjeta-contenido {
     display: contents;
 }
