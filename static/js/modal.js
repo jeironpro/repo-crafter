@@ -1,3 +1,22 @@
+const botonesCambiaNombreRepo = document.querySelectorAll(".boton-cambiar-nombre-repo");
+const modalCambiaNombreRepo = document.getElementById('modal-cambiar-nombre-repo');
+const formularioCambiaNombreRepo = document.getElementById('form-cambiar-nombre-repo');
+const inputCambiaNombreRepo = document.getElementById("nuevo-nombre");
+
+botonesCambiaNombreRepo.forEach(boton => {
+    boton.addEventListener("click", async () => {
+        const nombre = boton.dataset.nuevo_nombre;
+        inputCambiaNombreRepo.value = nombre;
+        formularioCambiaNombreRepo.action = `/cambia_nombre/${nombre}`;
+        modalCambiaNombreRepo.style.display = "flex";
+    });
+});
+
+const cerrarModalCambiaNombreRepo = document.getElementById('cerrar-modal-cambiar-nombre-repo');
+cerrarModalCambiaNombreRepo.addEventListener('click', () => {
+    modalCambiaNombreRepo.style.display = 'none';
+});
+
 const modalCreaRepo = document.getElementById('modal-crea-repo');
 const abrirModalCreaRepo = document.getElementById('abrir-modal-crea-repo');
 const cerrarModalCreaRepo = document.getElementById('cerrar-modal-crea-repo');

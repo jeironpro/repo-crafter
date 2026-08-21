@@ -242,6 +242,27 @@ def index():
         topic_count=topic_count
     )
 
+@app.route("/cambia_nombre/<nombre_actual>", methods=["POST"])
+def cambia_nombre(nombre_actual):
+    nuevo_nombre = request.form.get("nuevo-nombre")
+    url = f"https://api.github.com/repos/{GITHUB_USER}/{nombre_actual}"
+    
+    respuesta = requests.patch(
+        url,
+        headers=CABECERAS,
+        json={
+            "name": nuevo_nombre,
+        },
+    )
+    print(respuesta)
+    if respuesta.ok:
+        flash("Repositorio renombrado correctamente", "success")
+    else:
+        flash("Ocurrio un error al renombrar el repositorio", "error")
+        
+    return redirect("/")
+        
+
 @app.route("/crea_repo", methods=["POST"])
 def crea_repo():
     nombre = request.form.get("nombre")
