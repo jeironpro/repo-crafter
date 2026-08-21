@@ -342,7 +342,7 @@ def push_repo(visibilidad, nombre):
 
 @app.route("/cambiar_visibilidad/<nombre>", methods=["POST"])
 def cambiar_visibilidad(nombre):
-    visibilidad = request.form.get("cambia-visibilidad")
+    visibilidad = request.form.get("cambia-visibilidad") == "on"
 
     nueva_visibilidad = "privado" if visibilidad else "publico"
     anterior_visibilidad = "publico" if nueva_visibilidad == "privado" else "privado"
