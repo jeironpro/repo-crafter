@@ -2,13 +2,16 @@ import re
 import secrets
 import shutil
 from collections import Counter
+from datetime import date
+from pathlib import Path
 
-from flask import Flask, render_template, redirect, flash, request, jsonify, abort
+from flask import Flask, render_template, redirect, flash, request, jsonify, abort, Response
 from flask_wtf import CSRFProtect
 
 from config import GITHUB_USER, CARPETA_REPOS, YEAR
 import github_api
 import git_ops
+import resumen
 
 app = Flask(__name__)
 
@@ -73,6 +76,35 @@ def index():
         total_repos=total_repos,
         topic_count=topic_count,
         year=YEAR
+    )
+
+
+@app.route("/resumen", methods=["GET"])
+def descargar_resumen():
+    try:
+        repos = github_api.obtener_repos()
+    except RuntimeError as error:
+        return str(error)
+
+    grupos = resumen.clasificar_repos(repos)
+    topics = {repo["name"]: resumen.topics_despliegue(repo) for repo in grupos["desplegados"]}
+
+    tokens = (Path(app.root_path) / "static" / "css" / "tokens.css").read_text(encoding="utf-8")
+    html = render_template(
+        "resumen.html",
+        grupos=grupos,
+        topics_despliegue=topics,
+        tokens=tokens,
+        usuario=GITHUB_USER,
+        fecha=date.today().strftime("%d/%m/%Y"),
+        total=len(repos)
+    )
+
+    pdf = resumen.generar_pdf(html)
+    return Response(
+        pdf,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={resumen.nombre_archivo()}"}
     )
 
 
