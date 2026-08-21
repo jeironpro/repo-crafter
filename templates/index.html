@@ -105,8 +105,6 @@
                             <a href="{{ repo.svn_url }}" target="_blank" rel="noopener" class="enlace-repo">
                                 {{ repo.name }}
                             </a>
-                            <span class="material-symbols-outlined repo-icon-edit boton-cambiar-nombre-repo" title="renombrar" role="button" tabindex="0" data-nuevo_nombre="{{ repo.name }}">edit</span>
-                            <span class="material-symbols-outlined repo-icon-edit boton-topics-repo" title="editar topics" role="button" tabindex="0" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">sell</span>
                             {% if repo.topics %}
                             <span class="topic-badges">
                                 {% for topic in repo.topics %}
@@ -114,8 +112,12 @@
                                 {% endfor %}
                             </span>
                             {% endif %}
+                            <span class="material-symbols-outlined chevron-acordeon" aria-hidden="true">expand_more</span>
                         </h3>
-                        <div class="tarjeta-meta">
+                        <div class="tarjeta-acciones">
+                            <span class="material-symbols-outlined repo-icon-edit boton-cambiar-nombre-repo" title="renombrar" role="button" tabindex="0" data-nuevo_nombre="{{ repo.name }}">edit</span>
+                            <span class="material-symbols-outlined repo-icon-edit boton-topics-repo" title="editar topics" role="button" tabindex="0" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">sell</span>
+                            <div class="tarjeta-meta">
                             <div class="meta-grupo">
                                 <span class="chip {{ 'chip--privado' if repo.private else 'chip--publico' }}">
                                     <span class="material-symbols-outlined" aria-hidden="true">{{ 'lock' if repo.private else 'public' }}</span>
@@ -176,7 +178,7 @@
                                 <span class="material-symbols-outlined icono-eliminar">delete</span>
                             </button>
                         </div>
-                        <span class="material-symbols-outlined chevron-acordeon" aria-hidden="true">expand_more</span>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
