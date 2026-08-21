@@ -50,7 +50,16 @@
             {% endif %}
             {% endwith %}
             <div class="acciones">
-                <a class="btn btn--pear" href="/resumen">Generar resumen</a>
+                <div class="menu-resumen">
+                    <button type="button" class="btn btn--pear" id="boton-resumen" aria-haspopup="true" aria-expanded="false">
+                        Generar resumen
+                        <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+                    </button>
+                    <div class="menu-resumen__lista" id="menu-resumen-lista" hidden>
+                        <a href="/resumen">PDF</a>
+                        <a href="/resumen?formato=docx">Word (.docx)</a>
+                    </div>
+                </div>
                 <button type="button" class="btn btn--soft" id="abrir-modal-clona-repos">Clonar todo</button>
                 <button type="button" class="btn" id="abrir-modal-crea-repo">Crear repo</button>
             </div>
@@ -420,6 +429,7 @@
     <script src="{{ url_for('static', filename='js/topics.js') }}"></script>
     <script src="{{ url_for('static', filename='js/archivos.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mensaje.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/menu-resumen.js') }}"></script>
     <script src="{{ url_for('static', filename='js/visibilidad.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pagina.js') }}"></script>
     <script src="{{ url_for('static', filename='js/estadisticas.js') }}"></script>

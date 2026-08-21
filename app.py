@@ -83,6 +83,11 @@ def index():
 
 @app.route("/resumen", methods=["GET"])
 def descargar_resumen():
+    formato = request.args.get("formato", "pdf")
+
+    if formato not in {"pdf", "docx"}:
+        abort(400)
+
     try:
         repos = github_api.obtener_repos()
     except RuntimeError as error:
@@ -91,22 +96,27 @@ def descargar_resumen():
     grupos = resumen.clasificar_repos(repos)
     topics = {repo["name"]: resumen.topics_despliegue(repo) for repo in grupos["desplegados"]}
 
-    tokens = (Path(app.root_path) / "static" / "css" / "tokens.css").read_text(encoding="utf-8")
-    html = render_template(
-        "resumen.html",
-        grupos=grupos,
-        topics_despliegue=topics,
-        tokens=tokens,
-        usuario=GITHUB_USER,
-        fecha=date.today().strftime("%d/%m/%Y"),
-        total=len(repos)
-    )
+    if formato == "docx":
+        contenido = resumen.generar_docx(grupos, topics, GITHUB_USER)
+        mimetype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    else:
+        tokens = (Path(app.root_path) / "static" / "css" / "tokens.css").read_text(encoding="utf-8")
+        html = render_template(
+            "resumen.html",
+            grupos=grupos,
+            topics_despliegue=topics,
+            tokens=tokens,
+            usuario=GITHUB_USER,
+            fecha=date.today().strftime("%d/%m/%Y"),
+            total=len(repos)
+        )
+        contenido = resumen.generar_pdf(html)
+        mimetype = "application/pdf"
 
-    pdf = resumen.generar_pdf(html)
     return Response(
-        pdf,
-        mimetype="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={resumen.nombre_archivo()}"}
+        contenido,
+        mimetype=mimetype,
+        headers={"Content-Disposition": f"attachment; filename={resumen.nombre_archivo(formato)}"}
     )
 
 
