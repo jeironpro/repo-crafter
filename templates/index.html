@@ -109,6 +109,7 @@
                             <div class="tarjeta-valor">
                                 <span>{{ 'Privado' if repo.private else 'Público' }}</span>
                                 <form action="/cambiar_visibilidad/{{ repo.name }}" method="post" style="display: inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <label class="visibilidad">
                                         <input type="checkbox" name="cambia-visibilidad" id="cambia-visibilidad-{{ loop.index }}" {% if repo.private %} checked {% endif %}>
                                         <span class="deslizante">
@@ -135,6 +136,7 @@
                                 </span>
                                 {% if not repo.private %}
                                     <form action="/crea_elimina_pagina/{{ repo.name }}" method="post" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <label class="visibilidad">
                                             <input type="checkbox" name="crea-pagina" id="crea-pagina-{{ loop.index }}" {% if repo.has_pages %} checked {% endif %}>
                                             <span class="deslizante">
@@ -178,6 +180,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-cambiar-nombre-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="control">
                             <label for="nuevo-nombre">Nuevo nombre</label>
                             <input type="text" name="nuevo-nombre" id="nuevo-nombre">
@@ -196,6 +199,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="/crea_repo" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="control">
                             <label for="nombre">Nombre</label>
                             <input type="text" name="nombre" id="nombre">
@@ -233,6 +237,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="/clona_repos" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="button" id="boton-cerrar-modal-clona-repos">No</button>
                         <button type="submit">Si</button>
                     </form>
@@ -248,6 +253,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-clona-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="button" id="boton-cerrar-modal-clona-repo">No</button>
                         <button type="submit">Si</button>
                     </form>
@@ -263,6 +269,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-confirma-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <ul id="lista-archivos"></ul>
                         <div class="control">
                             <label for="mensaje-commit">Mensaje</label>
@@ -282,6 +289,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-actualiza-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit">Enviar</button>
                     </form>
                 </div>
@@ -296,6 +304,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-taguea-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="control">
                             <label for="version-tag">Versión</label>
                             <input type="text" name="version-tag" id="version-tag">
@@ -318,6 +327,7 @@
                 </div>
                 <div class="cuerpo-modal">
                     <form action="" method="post" id="form-elimina-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="button" id="boton-cerrar-modal-elimina-repo">No</button>
                         <button type="submit">Si</button>
                     </form>

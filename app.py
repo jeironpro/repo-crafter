@@ -1,9 +1,11 @@
 import os
+import re
 import secrets
 import requests
 import subprocess
 import base64
-from flask import Flask, render_template, redirect, flash, request, jsonify
+from flask import Flask, render_template, redirect, flash, request, jsonify, abort
+from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
@@ -12,6 +14,8 @@ from collections import Counter
 app = Flask(__name__)
 
 app.secret_key = secrets.token_hex(32)
+
+csrf = CSRFProtect(app)
 
 load_dotenv()
 
@@ -27,6 +31,26 @@ CABECERAS = {
 }
 HOME = Path.home()
 CARPETA_REPOS = HOME / "Repositorios"
+
+# Validación de parámetros de ruta contra path traversal
+VISIBILIDADES = {"publico", "privado"}
+NOMBRE_REPO_RE = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
+
+
+def validar_nombre(nombre):
+    if not NOMBRE_REPO_RE.match(nombre or ""):
+        abort(404)
+    return nombre
+
+
+def ruta_repo(visibilidad, nombre):
+    if visibilidad not in VISIBILIDADES:
+        abort(404)
+    validar_nombre(nombre)
+    carpeta = CARPETA_REPOS / visibilidad / nombre
+    if CARPETA_REPOS.resolve() not in carpeta.resolve().parents:
+        abort(404)
+    return carpeta
 
 # Año actual para la licencia
 YEAR = datetime.now().year
@@ -244,7 +268,9 @@ def index():
 
 @app.route("/cambia_nombre/<nombre_actual>", methods=["POST"])
 def cambia_nombre(nombre_actual):
+    validar_nombre(nombre_actual)
     nuevo_nombre = request.form.get("nuevo-nombre")
+    validar_nombre(nuevo_nombre)
     url = f"https://api.github.com/repos/{GITHUB_USER}/{nombre_actual}"
     
     respuesta = requests.patch(
@@ -274,6 +300,9 @@ def crea_repo():
 
 @app.route("/clona_repo/<nombre>/<visibilidad>", methods=["POST"])
 def clona_repo(nombre, visibilidad):
+    if visibilidad not in VISIBILIDADES:
+        abort(404)
+    validar_nombre(nombre)
     mensaje = auxiliar_clona_repo(nombre, visibilidad)
     flash(mensaje, "success" if "correctamente" in mensaje else "error")
     return redirect("/")
@@ -286,7 +315,7 @@ def clona_repos():
 
 @app.route("/estado_repo/<visibilidad>/<nombre>", methods=["GET"])
 def estado_repo(visibilidad, nombre):
-    carpeta_repo = CARPETA_REPOS / visibilidad  / nombre
+    carpeta_repo = ruta_repo(visibilidad, nombre)
 
     if not carpeta_repo.exists():
         return jsonify({
@@ -316,7 +345,7 @@ def commit_repo(visibilidad, nombre):
         flash("Debes seleccionar al menos un archivo", "error")
         return redirect("/")
 
-    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+    carpeta_repo = ruta_repo(visibilidad, nombre)
 
     resultado_add = subprocess.run(["git", "-C", str(carpeta_repo), "add", *archivos])
     if resultado_add.returncode != 0:
@@ -339,7 +368,7 @@ def commit_repo(visibilidad, nombre):
 
 @app.route("/push_repo/<visibilidad>/<nombre>", methods=["POST"])
 def push_repo(visibilidad, nombre):
-    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+    carpeta_repo = ruta_repo(visibilidad, nombre)
 
     resultado = subprocess.run(["git", "-C", str(carpeta_repo), "push", "origin", "main"])
 
@@ -352,6 +381,7 @@ def push_repo(visibilidad, nombre):
 
 @app.route("/cambiar_visibilidad/<nombre>", methods=["POST"])
 def cambiar_visibilidad(nombre):
+    validar_nombre(nombre)
     visibilidad = request.form.get("cambia-visibilidad") == "on"
 
     nueva_visibilidad = "privado" if visibilidad else "publico"
@@ -378,6 +408,7 @@ def cambiar_visibilidad(nombre):
 
 @app.route("/crea_elimina_pagina/<nombre>", methods=["POST"])
 def crea_elimina_pagina(nombre):
+    validar_nombre(nombre)
     url_repo = f"https://api.github.com/repos/{GITHUB_USER}/{nombre}/pages"
 
     estado = requests.get(url_repo, headers=CABECERAS)
@@ -411,6 +442,7 @@ def crea_elimina_pagina(nombre):
 
 @app.route('/elimina_repo/<nombre>', methods=["POST"])
 def elimina_repo(nombre):
+    validar_nombre(nombre)
     url_elimina = f"https://api.github.com/repos/{GITHUB_USER}/{nombre}"
     respuesta = requests.delete(url_elimina, headers=CABECERAS)
 
@@ -426,7 +458,7 @@ def crea_tag(visibilidad, nombre):
     mensaje = request.form.get("mensaje-tag")
     version = request.form.get("version-tag")
 
-    carpeta_repo = CARPETA_REPOS / visibilidad / nombre
+    carpeta_repo = ruta_repo(visibilidad, nombre)
 
     resultado_tag = subprocess.run([
         "git", "-C", str(carpeta_repo),
@@ -448,4 +480,4 @@ def crea_tag(visibilidad, nombre):
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("FLASK_DEBUG", "0") == "1")
