@@ -15,6 +15,17 @@ const errorVisor = document.getElementById("error-visor");
 
 let contexto = { nombre: "", ruta: "" };
 
+function actualizarBloqueoScroll() {
+    const algunoAbierto = [...document.querySelectorAll(".contenedor-modal")]
+        .some(modal => modal.style.display === "flex");
+    document.body.style.overflow = algunoAbierto ? "hidden" : "";
+}
+
+function fijarDisplay(modal, valor) {
+    modal.style.display = valor;
+    actualizarBloqueoScroll();
+}
+
 function rutaExplorador() {
     const parametros = contexto.ruta ? `?ruta=${encodeURIComponent(contexto.ruta)}` : "";
     return `/archivos/${contexto.nombre}${parametros}`;
@@ -94,7 +105,7 @@ async function verArchivo(nombreArchivo) {
     tituloVerArchivo.textContent = nombreArchivo;
     errorVisor.hidden = true;
     contenidoArchivo.hidden = true;
-    modalVerArchivo.style.display = "flex";
+    fijarDisplay(modalVerArchivo, "flex");
 
     try {
         const respuesta = await fetch(
@@ -121,28 +132,28 @@ botonesArchivosRepo.forEach(boton => {
 
         tituloModalArchivos.textContent = `Archivos · ${contexto.nombre}`;
         vacioExplorador.textContent = "Carpeta vacia";
-        modalArchivosRepo.style.display = "flex";
+        fijarDisplay(modalArchivosRepo, "flex");
         abrirEn("");
     });
 });
 
 cerrarModalArchivosRepo.addEventListener("click", () => {
-    modalArchivosRepo.style.display = "none";
+    fijarDisplay(modalArchivosRepo, "none");
 });
 
 modalArchivosRepo.addEventListener("click", evento => {
     if (evento.target === modalArchivosRepo) {
-        modalArchivosRepo.style.display = "none";
+        fijarDisplay(modalArchivosRepo, "none");
     }
 });
 
 cerrarModalVerArchivo.addEventListener("click", () => {
-    modalVerArchivo.style.display = "none";
+    fijarDisplay(modalVerArchivo, "none");
 });
 
 modalVerArchivo.addEventListener("click", evento => {
     if (evento.target === modalVerArchivo) {
-        modalVerArchivo.style.display = "none";
+        fijarDisplay(modalVerArchivo, "none");
     }
 });
 
@@ -156,5 +167,5 @@ document.addEventListener("keydown", evento => {
             (parseInt(getComputedStyle(a).zIndex, 10) || 0)
         );
 
-    if (abiertos[0]) abiertos[0].style.display = "none";
+    if (abiertos[0]) fijarDisplay(abiertos[0], "none");
 });
