@@ -516,12 +516,13 @@ form[action*="crea_elimina_pagina"] .visibilidad input:checked + .deslizante { b
 }
 .paginacion__puntos { color: var(--color-muted); font-size: 13px; padding: 0 0.15rem; }
 .paginacion__info {
+  flex-basis: 100%;
+  text-align: center;
   font-family: var(--font-label);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-muted);
-  margin-left: 0.6rem;
 }
 
 /* ── Pie ─────────────────────────────────────────────────── */
