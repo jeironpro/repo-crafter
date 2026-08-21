@@ -166,6 +166,9 @@
                             <button type="button" class="boton-topics boton-topics-repo" title="editar topics" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">
                                 <span class="material-symbols-outlined icono-topics">sell</span>
                             </button>
+                            <button type="button" class="boton-archivos boton-archivos-repo" title="ver archivos" data-nombre="{{ repo.name }}">
+                                <span class="material-symbols-outlined icono-archivos">folder_open</span>
+                            </button>
                             <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-clonar">content_copy</span>
                             </button>
@@ -356,6 +359,33 @@
                 </div>
             </div>
         </div>
+        <!-- Modal archivos repo -->
+        <div class="contenedor-modal" id="modal-archivos-repo">
+            <div class="modal modal--explorador">
+                <div class="cabecera-modal">
+                    <h1 id="titulo-modal-archivos">Archivos</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-archivos-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <nav id="breadcrumb-archivos" class="breadcrumb" aria-label="Ruta de carpetas"></nav>
+                    <ul id="lista-explorador" class="lista-explorador"></ul>
+                    <p id="vacio-explorador" class="vacio-explorador" hidden>Carpeta vacia</p>
+                </div>
+            </div>
+        </div>
+        <!-- Modal ver archivo -->
+        <div class="contenedor-modal contenedor-modal--superior" id="modal-ver-archivo">
+            <div class="modal modal--visor">
+                <div class="cabecera-modal">
+                    <h1 id="titulo-modal-ver-archivo">Archivo</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-ver-archivo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <p id="error-visor" class="error-visor" hidden></p>
+                    <pre id="contenido-archivo" class="contenido-archivo" hidden><code></code></pre>
+                </div>
+            </div>
+        </div>
         <!-- Modal elimina repo -->
         <div class="contenedor-modal" id="modal-elimina-repo">
             <div class="modal">
@@ -387,6 +417,7 @@
     <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/topics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/archivos.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mensaje.js') }}"></script>
     <script src="{{ url_for('static', filename='js/visibilidad.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pagina.js') }}"></script>

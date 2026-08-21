@@ -132,6 +132,22 @@ def estado_pagina(nombre):
     return requests.get(f"{url_repo(nombre)}/pages", headers=CABECERAS)
 
 
+TAMANIO_MAXIMO_ARCHIVO = 512 * 1024
+
+
+def obtener_contenido(nombre, ruta=""):
+    """Devuelve la respuesta de la API de contenidos de GitHub para una ruta del repo."""
+    clave = f"contenido:{nombre}:{ruta}"
+    en_cache = _desde_cache(clave)
+    if en_cache is not None:
+        return en_cache
+
+    url = f"{url_repo(nombre)}/contents/{ruta}" if ruta else f"{url_repo(nombre)}/contents"
+    respuesta = requests.get(url, headers=CABECERAS)
+    _a_cache(clave, respuesta)
+    return respuesta
+
+
 def crear_pagina(nombre):
     datos = {
         "source": {
