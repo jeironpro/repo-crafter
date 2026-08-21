@@ -115,8 +115,6 @@
                             <span class="material-symbols-outlined chevron-acordeon" aria-hidden="true">expand_more</span>
                         </h3>
                         <div class="tarjeta-acciones">
-                            <span class="material-symbols-outlined repo-icon-edit boton-cambiar-nombre-repo" title="renombrar" role="button" tabindex="0" data-nuevo_nombre="{{ repo.name }}">edit</span>
-                            <span class="material-symbols-outlined repo-icon-edit boton-topics-repo" title="editar topics" role="button" tabindex="0" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">sell</span>
                             <div class="tarjeta-meta">
                             <div class="meta-grupo">
                                 <span class="chip {{ 'chip--privado' if repo.private else 'chip--publico' }}">
@@ -162,6 +160,12 @@
                             </div>
                         </div>
                         <div class="botones">
+                            <button type="button" class="boton-renombrar boton-cambiar-nombre-repo" title="renombrar" data-nuevo_nombre="{{ repo.name }}">
+                                <span class="material-symbols-outlined icono-renombrar">edit</span>
+                            </button>
+                            <button type="button" class="boton-topics boton-topics-repo" title="editar topics" data-nombre="{{ repo.name }}" data-topics="{{ repo.topics | join(',') }}">
+                                <span class="material-symbols-outlined icono-topics">sell</span>
+                            </button>
                             <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-clonar">content_copy</span>
                             </button>
