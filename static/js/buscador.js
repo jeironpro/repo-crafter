@@ -27,5 +27,23 @@ function filtrarRepos() {
     }
 }
 
-buscador.addEventListener("input", filtrarRepos);
-filtroTema.addEventListener("change", filtrarRepos);
+function sincronizarFiltros() {
+    const estado = window.estadoUrl ? window.estadoUrl.leer() : {};
+    buscador.value = estado.q || "";
+    filtroTema.value = estado.tema || "";
+    filtrarRepos();
+}
+
+buscador.addEventListener("input", () => {
+    filtrarRepos();
+    window.estadoUrl?.escribir({ q: buscador.value || null, page: null }, true);
+});
+
+filtroTema.addEventListener("change", () => {
+    filtrarRepos();
+    window.estadoUrl?.escribir({ tema: filtroTema.value || null, page: null });
+});
+
+window.addEventListener("popstate", sincronizarFiltros);
+
+sincronizarFiltros();

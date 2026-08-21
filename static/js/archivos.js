@@ -14,6 +14,9 @@ const codigoArchivo = contenidoArchivo.querySelector("code");
 const errorVisor = document.getElementById("error-visor");
 
 let contexto = { nombre: "", ruta: "" };
+let restaurando = false;
+
+const PATRON_NOMBRE = /^[A-Za-z0-9_.-]+$/;
 
 function actualizarBloqueoScroll() {
     const algunoAbierto = [...document.querySelectorAll(".contenedor-modal")]
@@ -31,6 +34,12 @@ function rutaExplorador() {
     return `/archivos/${contexto.nombre}${parametros}`;
 }
 
+function carpetaDeRuta(ruta) {
+    const partes = ruta.split("/").filter(Boolean);
+    partes.pop();
+    return partes.join("/");
+}
+
 function pintarBreadcrumb() {
     breadcrumb.innerHTML = "";
 
@@ -39,7 +48,7 @@ function pintarBreadcrumb() {
         boton.type = "button";
         boton.textContent = etiqueta;
         if (ruta === contexto.ruta) boton.setAttribute("aria-current", "location");
-        boton.addEventListener("click", () => abrirEn(ruta));
+        boton.addEventListener("click", () => navegarA(ruta));
         breadcrumb.appendChild(boton);
     };
 
@@ -71,9 +80,8 @@ function pintarListado(datos) {
     listaExplorador.innerHTML = "";
 
     datos.carpetas.forEach(carpeta => {
-        listaExplorador.appendChild(crearFila("folder", carpeta.nombre, () => {
-            abrirEn(contexto.ruta ? `${contexto.ruta}/${carpeta.nombre}` : carpeta.nombre);
-        }));
+        const destino = contexto.ruta ? `${contexto.ruta}/${carpeta.nombre}` : carpeta.nombre;
+        listaExplorador.appendChild(crearFila("folder", carpeta.nombre, () => navegarA(destino)));
     });
 
     datos.archivos.forEach(archivo => {
@@ -81,6 +89,11 @@ function pintarListado(datos) {
     });
 
     vacioExplorador.hidden = (datos.carpetas.length + datos.archivos.length) > 0;
+}
+
+function navegarA(ruta) {
+    window.estadoUrl?.escribir({ repo: contexto.nombre, ruta: ruta || null });
+    abrirEn(ruta);
 }
 
 async function abrirEn(ruta) {
@@ -101,16 +114,27 @@ async function abrirEn(ruta) {
 
 async function verArchivo(nombreArchivo) {
     const rutaCompleta = contexto.ruta ? `${contexto.ruta}/${nombreArchivo}` : nombreArchivo;
+    await verArchivoRuta(rutaCompleta);
+}
 
-    tituloVerArchivo.textContent = nombreArchivo;
+async function verArchivoRuta(rutaCompleta) {
+    let respuesta;
+    try {
+        respuesta = await fetch(
+            `/archivo/${contexto.nombre}?ruta=${encodeURIComponent(rutaCompleta)}`
+        );
+    } catch {
+        return false;
+    }
+
+    if (respuesta.status === 404) return false;
+
+    tituloVerArchivo.textContent = rutaCompleta.split("/").pop();
     errorVisor.hidden = true;
     contenidoArchivo.hidden = true;
     fijarDisplay(modalVerArchivo, "flex");
 
     try {
-        const respuesta = await fetch(
-            `/archivo/${contexto.nombre}?ruta=${encodeURIComponent(rutaCompleta)}`
-        );
         const datos = await respuesta.json();
 
         if (!respuesta.ok) throw new Error(datos.error || "No se pudo leer el archivo");
@@ -121,40 +145,49 @@ async function verArchivo(nombreArchivo) {
         errorVisor.textContent = error.message;
         errorVisor.hidden = false;
     }
+
+    return true;
+}
+
+function prepararExplorador(nombre) {
+    contexto = { nombre: nombre, ruta: "" };
+    tituloModalArchivos.textContent = `Archivos · ${contexto.nombre}`;
+    vacioExplorador.textContent = "Carpeta vacia";
+    fijarDisplay(modalArchivosRepo, "flex");
 }
 
 botonesArchivosRepo.forEach(boton => {
     boton.addEventListener("click", () => {
-        contexto = {
-            nombre: boton.dataset.nombre,
-            ruta: ""
-        };
-
-        tituloModalArchivos.textContent = `Archivos · ${contexto.nombre}`;
-        vacioExplorador.textContent = "Carpeta vacia";
-        fijarDisplay(modalArchivosRepo, "flex");
+        prepararExplorador(boton.dataset.nombre);
+        window.estadoUrl?.escribir({ repo: contexto.nombre, ruta: null });
         abrirEn("");
     });
 });
 
-cerrarModalArchivosRepo.addEventListener("click", () => {
+function cerrarVisor() {
+    fijarDisplay(modalVerArchivo, "none");
+    if (!restaurando) {
+        window.estadoUrl?.escribir({ repo: contexto.nombre, ruta: contexto.ruta || null }, true);
+    }
+}
+
+function cerrarExplorador() {
     fijarDisplay(modalArchivosRepo, "none");
-});
+    if (!restaurando) {
+        window.estadoUrl?.escribir({ repo: null, ruta: null });
+    }
+}
+
+cerrarModalArchivosRepo.addEventListener("click", cerrarExplorador);
 
 modalArchivosRepo.addEventListener("click", evento => {
-    if (evento.target === modalArchivosRepo) {
-        fijarDisplay(modalArchivosRepo, "none");
-    }
+    if (evento.target === modalArchivosRepo) cerrarExplorador();
 });
 
-cerrarModalVerArchivo.addEventListener("click", () => {
-    fijarDisplay(modalVerArchivo, "none");
-});
+cerrarModalVerArchivo.addEventListener("click", cerrarVisor);
 
 modalVerArchivo.addEventListener("click", evento => {
-    if (evento.target === modalVerArchivo) {
-        fijarDisplay(modalVerArchivo, "none");
-    }
+    if (evento.target === modalVerArchivo) cerrarVisor();
 });
 
 document.addEventListener("keydown", evento => {
@@ -167,5 +200,34 @@ document.addEventListener("keydown", evento => {
             (parseInt(getComputedStyle(a).zIndex, 10) || 0)
         );
 
-    if (abiertos[0]) fijarDisplay(abiertos[0], "none");
+    if (!abiertos[0]) return;
+
+    if (abiertos[0] === modalVerArchivo) cerrarVisor();
+    else if (abiertos[0] === modalArchivosRepo) cerrarExplorador();
+    else fijarDisplay(abiertos[0], "none");
 });
+
+async function restaurarDesdeUrl() {
+    const estado = window.estadoUrl ? window.estadoUrl.leer() : {};
+
+    if (!estado.repo || !PATRON_NOMBRE.test(estado.repo)) {
+        if (modalVerArchivo.style.display === "flex") fijarDisplay(modalVerArchivo, "none");
+        if (modalArchivosRepo.style.display === "flex") cerrarExplorador();
+        return;
+    }
+
+    restaurando = true;
+    prepararExplorador(estado.repo);
+
+    if (estado.ruta) {
+        const esArchivo = await verArchivoRuta(estado.ruta);
+        await abrirEn(esArchivo ? carpetaDeRuta(estado.ruta) : estado.ruta);
+    } else {
+        await abrirEn("");
+    }
+
+    restaurando = false;
+}
+
+window.addEventListener("popstate", restaurarDesdeUrl);
+restaurarDesdeUrl();

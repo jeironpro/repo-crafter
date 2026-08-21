@@ -38,6 +38,7 @@ if (contenedorRepos) {
 
     function ir(pagina, desplazar) {
         paginaActual = pagina;
+        window.estadoUrl?.escribir({ page: pagina === 1 ? null : pagina });
         render();
         if (desplazar) {
             contenedorRepos.scrollIntoView({
@@ -115,5 +116,13 @@ if (contenedorRepos) {
         render();
     };
 
+    window.addEventListener("popstate", () => {
+        const estado = window.estadoUrl ? window.estadoUrl.leer() : {};
+        paginaActual = parseInt(estado.page, 10) || 1;
+        render();
+    });
+
+    const estadoInicial = window.estadoUrl ? window.estadoUrl.leer() : {};
+    paginaActual = parseInt(estadoInicial.page, 10) || 1;
     render();
 }
