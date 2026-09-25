@@ -17,12 +17,21 @@ def test_esta_desplegado_es_insensible_a_mayusculas(repo_falso):
     assert not resumen.esta_desplegado(repo_falso(topics=["frontend"]))
 
 
-def test_clasificar_repos_separa_en_tres_grupos(repo_falso):
+def test_topics_no_autorizado_es_insensible_a_mayusculas(repo_falso):
+    repo = repo_falso(topics=["api", "Unauthorized", "x-unauthorized-app"])
+    assert resumen.topics_no_autorizado(repo) == ["Unauthorized", "x-unauthorized-app"]
+    assert resumen.no_autorizado(repo)
+    assert not resumen.no_autorizado(repo_falso(topics=["frontend"]))
+
+
+def test_clasificar_repos_separa_en_cinco_grupos(repo_falso):
     repos = [
         repo_falso(nombre="desplegado-publico", privado=False, topics=["github-pages"]),
         repo_falso(nombre="desplegado-privado", privado=True, topics=["cloudflare-pages"]),
         repo_falso(nombre="normal-publico", privado=False),
         repo_falso(nombre="normal-privado", privado=True),
+        repo_falso(nombre="sin-acceso", topics=["unauthorized"]),
+        repo_falso(nombre="con-mi-contenido", topics=["my-content"]),
     ]
 
     grupos = resumen.clasificar_repos(repos)
@@ -31,6 +40,8 @@ def test_clasificar_repos_separa_en_tres_grupos(repo_falso):
     assert set(nombres["desplegados"]) == {"desplegado-publico", "desplegado-privado"}
     assert nombres["publicos"] == ["normal-publico"]
     assert nombres["privados"] == ["normal-privado"]
+    assert nombres["no_autorizado"] == ["sin-acceso"]
+    assert nombres["mi_contenido"] == ["con-mi-contenido"]
 
 
 def test_clasificar_repos_ordena_alfabeticamente(repo_falso):
@@ -51,17 +62,21 @@ def test_nombre_archivo_incluye_fecha():
     assert resumen.nombre_archivo("docx").endswith(".docx")
 
 
-def test_generar_docx_produce_documento_con_tres_tablas(repo_falso):
+def test_generar_docx_produce_documento_con_cinco_tablas(repo_falso):
     repos = [
         repo_falso(nombre="b-pages", topics=["github-pages"]),
         repo_falso(nombre="a-privado", privado=True),
+        repo_falso(nombre="sin-acceso", topics=["unauthorized"]),
+        repo_falso(nombre="mi-contenido", topics=["my-content"]),
     ]
     grupos = resumen.clasificar_repos(repos)
-    topics = {r["name"]: resumen.topics_despliegue(r) for r in repos}
+    topics = {r["name"]: resumen.topics_despliegue(r) for r in grupos["desplegados"]}
+    topics.update({r["name"]: resumen.topics_no_autorizado(r) for r in grupos["no_autorizado"]})
+    topics.update({r["name"]: resumen.topics_mi_contenido(r) for r in grupos["mi_contenido"]})
 
     documento = Document(BytesIO(resumen.generar_docx(grupos, topics, "usuario-test")))
 
-    assert len(documento.tables) == 3
+    assert len(documento.tables) == 5
 
     desplegados = documento.tables[0]
     assert [celda.text for celda in desplegados.rows[0].cells] == [
@@ -73,6 +88,21 @@ def test_generar_docx_produce_documento_con_tres_tablas(repo_falso):
 
     assert documento.tables[1].rows[1].cells[0].text == "Ninguno"
     assert documento.tables[2].rows[1].cells[0].text == "a-privado"
+
+    no_autorizados = documento.tables[3]
+    assert [celda.text for celda in no_autorizados.rows[0].cells] == [
+        "Nombre", "Visibilidad", "Topics no autorizados"
+    ]
+    assert no_autorizados.rows[1].cells[0].text == "sin-acceso"
+    assert no_autorizados.rows[1].cells[1].text == "Público"
+    assert "unauthorized" in no_autorizados.rows[1].cells[2].text
+
+    mi_contenido = documento.tables[4]
+    assert [celda.text for celda in mi_contenido.rows[0].cells] == [
+        "Nombre", "Visibilidad", "Topics mi contenido"
+    ]
+    assert mi_contenido.rows[1].cells[0].text == "mi-contenido"
+    assert "my-content" in mi_contenido.rows[1].cells[2].text
 
 
 def test_ruta_resumen_formato_docx_devuelve_word_valido(cliente, repo_falso):
@@ -86,7 +116,7 @@ def test_ruta_resumen_formato_docx_devuelve_word_valido(cliente, repo_falso):
     assert resumen.nombre_archivo("docx") in respuesta.headers["Content-Disposition"]
 
     documento = Document(BytesIO(respuesta.data))
-    assert len(documento.tables) == 3
+    assert len(documento.tables) == 5
     assert documento.tables[0].rows[1].cells[0].text == "con-pages"
 
 
@@ -115,6 +145,8 @@ def test_ruta_resumen_devuelve_pdf(cliente, repo_falso):
     assert "Repositorios desplegados" in html_renderizado
     assert "Repositorios públicos no desplegados" in html_renderizado
     assert "Repositorios privados no desplegados" in html_renderizado
+    assert "Repositorios no autorizados" in html_renderizado
+    assert "Repositorios con mi contenido" in html_renderizado
     assert "con-pages" in html_renderizado
 
 
@@ -125,4 +157,4 @@ def test_ruta_resumen_sin_repos_devuelve_pdf_vacio_de_datos(cliente):
 
     assert respuesta.status_code == 200
     html_renderizado = generar.call_args[0][0]
-    assert html_renderizado.count("Ninguno") == 3
+    assert html_renderizado.count("Ninguno") == 5
