@@ -18,10 +18,10 @@ const cerrarEliminaSeleccion = document.getElementById("cerrar-modal-elimina-sel
 const botonCerrarClonaSeleccion = document.getElementById("boton-cerrar-modal-clona-seleccion");
 const botonCerrarEliminaSeleccion = document.getElementById("boton-cerrar-modal-elimina-seleccion");
 
-const contenedorRepos = document.querySelector(".contenedor-repos");
+const contenedorTarjetas = document.querySelector(".contenedor-repos");
 
-if (botonAbrirSeleccion && contenedorRepos) {
-    const tarjetas = Array.from(contenedorRepos.querySelectorAll(".tarjeta-repo"));
+if (botonAbrirSeleccion && contenedorTarjetas) {
+    const tarjetas = Array.from(contenedorTarjetas.querySelectorAll(".tarjeta-repo"));
     const seleccion = new Map();
 
     let modoSeleccion = false;
@@ -66,7 +66,7 @@ if (botonAbrirSeleccion && contenedorRepos) {
     function activarSeleccion() {
         modoSeleccion = true;
         botonAbrirSeleccion.setAttribute("aria-pressed", "true");
-        contenedorRepos.classList.add("modo-seleccion");
+        contenedorTarjetas.classList.add("modo-seleccion");
         barraSeleccion.hidden = false;
         actualizarSeleccion();
     }
@@ -74,7 +74,7 @@ if (botonAbrirSeleccion && contenedorRepos) {
     function desactivarSeleccion() {
         modoSeleccion = false;
         botonAbrirSeleccion.setAttribute("aria-pressed", "false");
-        contenedorRepos.classList.remove("modo-seleccion");
+        contenedorTarjetas.classList.remove("modo-seleccion");
         barraSeleccion.hidden = true;
         seleccion.clear();
 
