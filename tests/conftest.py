@@ -38,12 +38,13 @@ def respuesta_fake():
 
 @pytest.fixture()
 def repo_falso():
-    def _crear(nombre="repo-uno", privado=False, paginas=False, topics=None):
+    def _crear(nombre="repo-uno", privado=False, paginas=False, topics=None, lenguaje=None):
         return {
             "name": nombre,
             "private": privado,
             "has_pages": paginas,
             "topics": topics or [],
+            "language": lenguaje,
             "svn_url": f"https://github.com/usuario-test/{nombre}",
             "ssh_url": f"git@github.com:usuario-test/{nombre}.git",
             "owner": {"login": "usuario-test"},

@@ -117,7 +117,7 @@ def descargar_resumen():
     topics.update({repo["name"]: resumen.topics_mi_contenido(repo) for repo in grupos["mi_contenido"]})
 
     if formato == "docx":
-        contenido = resumen.generar_docx(grupos, topics, GITHUB_USER)
+        contenido = resumen.generar_docx(grupos, topics, GITHUB_USER, resumen.lenguajes_de_repos(repos))
         mimetype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     else:
         tokens = (Path(app.root_path) / "static" / "css" / "tokens.css").read_text(encoding="utf-8")
@@ -125,6 +125,7 @@ def descargar_resumen():
             "resumen.html",
             grupos=grupos,
             topics=topics,
+            lenguajes=resumen.lenguajes_de_repos(repos),
             tokens=tokens,
             usuario=GITHUB_USER,
             fecha=date.today().strftime("%d/%m/%Y"),

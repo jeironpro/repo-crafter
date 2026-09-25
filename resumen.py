@@ -71,15 +71,33 @@ def nombre_archivo(formato="pdf"):
     return f"resumen-repos-{date.today().isoformat()}.{formato}"
 
 
+def lenguajes_de_repos(repos):
+    """Cuenta el lenguaje principal de todos los repositorios.
+
+    Devuelve una lista de pares (lenguaje, cantidad) sin repetidos, ordenada
+    de mayor a menor cantidad y, a igualdad de cantidad, alfabéticamente.
+    Se omiten los repositorios que no declaran lenguaje.
+    """
+    contador = {}
+    for repo in repos:
+        lenguaje = repo.get("language")
+        if lenguaje:
+            contador[lenguaje] = contador.get(lenguaje, 0) + 1
+
+    return sorted(contador.items(), key=lambda par: (-par[1], par[0].lower()))
+
+
 def generar_pdf(html):
     return HTML(string=html).write_pdf()
 
 
-def generar_docx(grupos, topics, usuario):
+def generar_docx(grupos, topics, usuario, lenguajes=None):
     """Construye el resumen como documento Word editable con el mismo contenido que el PDF.
 
     `topics` asocia cada nombre de repo con los topics relevantes de su sección
     (de despliegue para los desplegados, no autorizados para los no autorizados, mi contenido para los que contienen mi contenido).
+    `lenguajes` es una lista de pares (lenguaje, cantidad) que se añade como
+    tabla final con los lenguajes de todos los repositorios.
     """
     documento = Document()
     documento.add_heading("Resumen de repositorios", 0)
@@ -109,6 +127,21 @@ def generar_docx(grupos, topics, usuario):
                     celdas[2].text = ", ".join(topics.get(repo["name"], []))
         else:
             tabla.add_row().cells[0].text = "Ninguno"
+
+    # Lenguajes de todos los repositorios.
+    documento.add_heading("Lenguajes de los repositorios", level=1)
+    tabla_lenguajes = documento.add_table(rows=1, cols=2)
+    tabla_lenguajes.style = "Light Grid Accent 1"
+    tabla_lenguajes.rows[0].cells[0].text = "Lenguaje"
+    tabla_lenguajes.rows[0].cells[1].text = "Repositorios"
+
+    if lenguajes:
+        for lenguaje, cantidad in lenguajes:
+            celdas = tabla_lenguajes.add_row().cells
+            celdas[0].text = lenguaje
+            celdas[1].text = str(cantidad)
+    else:
+        tabla_lenguajes.add_row().cells[0].text = "Ninguno"
 
     buffer = io.BytesIO()
     documento.save(buffer)

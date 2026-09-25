@@ -81,6 +81,7 @@
         .titulo-seccion.privados h2 { color: var(--color-lavender-deep); }
         .titulo-seccion.no-autorizado h2 { color: var(--color-accent-3-deep); }
         .titulo-seccion.mi-contenido h2 { color: var(--color-accent-deep); }
+        .titulo-seccion.lenguajes h2 { color: var(--color-muted); }
         .conteo {
             font-family: var(--font-label);
             font-size: 8pt;
@@ -92,6 +93,7 @@
         .privados .conteo { background: var(--tint-lavender); color: var(--color-lavender-deep); }
         .no-autorizado .conteo { background: var(--tint-coral); color: var(--color-accent-3-deep); }
         .mi-contenido .conteo { background: var(--tint-pear); color: var(--color-accent-deep); }
+        .lenguajes .conteo { background: var(--color-paper-2); color: var(--color-ink-2); }
 
         table {
             width: 100%;
@@ -281,6 +283,31 @@
                 </tr>
                 {% else %}
                 <tr><td class="vacio" colspan="3">Ninguno</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="lenguajes">
+        <div class="titulo-seccion lenguajes">
+            <h2>Lenguajes de los repositorios</h2>
+            <span class="conteo">{{ lenguajes | length }}</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lenguaje</th>
+                    <th>Repositorios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lenguaje, cantidad in lenguajes %}
+                <tr>
+                    <td><strong>{{ lenguaje }}</strong></td>
+                    <td>{{ cantidad }}</td>
+                </tr>
+                {% else %}
+                <tr><td class="vacio" colspan="2">Ninguno</td></tr>
                 {% endfor %}
             </tbody>
         </table>
