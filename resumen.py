@@ -10,11 +10,15 @@ from docx import Document
 from weasyprint import HTML
 
 TOPIC_DESPLIEGUE = "pages"
+TOPIC_NO_AUTORIZADO = "unauthorized"
+TOPIC_MI_CONTENIDO = "my-content"
 
 SECCIONES = [
-    ("Repositorios desplegados", "desplegados", True),
-    ("Repositorios públicos no desplegados", "publicos", False),
-    ("Repositorios privados no desplegados", "privados", False),
+    ("Repositorios desplegados", "desplegados", True, "Topics de despliegue"),
+    ("Repositorios públicos no desplegados", "publicos", False, None),
+    ("Repositorios privados no desplegados", "privados", False, None),
+    ("Repositorios no autorizados", "no_autorizado", True, "Topics no autorizados"),
+    ("Repositorios con mi contenido", "mi_contenido", True, "Topics mi contenido"),
 ]
 
 
@@ -22,16 +26,36 @@ def topics_despliegue(repo):
     return [topic for topic in repo.get("topics", []) if TOPIC_DESPLIEGUE in topic.lower()]
 
 
+def topics_no_autorizado(repo):
+    return [topic for topic in repo.get("topics", []) if TOPIC_NO_AUTORIZADO in topic.lower()]
+
+
+def topics_mi_contenido(repo):
+    return [topic for topic in repo.get("topics", []) if TOPIC_MI_CONTENIDO in topic.lower()]
+
+
 def esta_desplegado(repo):
     return bool(topics_despliegue(repo))
 
 
+def no_autorizado(repo):
+    return bool(topics_no_autorizado(repo))
+
+
+def mi_contenido(repo):
+    return bool(topics_mi_contenido(repo))
+
+
 def clasificar_repos(repos):
-    grupos = {"desplegados": [], "publicos": [], "privados": []}
+    grupos = {"desplegados": [], "publicos": [], "privados": [], "no_autorizado": [], "mi_contenido": []}
 
     for repo in repos:
         if esta_desplegado(repo):
             grupos["desplegados"].append(repo)
+        elif no_autorizado(repo):
+            grupos["no_autorizado"].append(repo)
+        elif mi_contenido(repo):
+            grupos["mi_contenido"].append(repo)
         elif repo["private"]:
             grupos["privados"].append(repo)
         else:
@@ -51,8 +75,12 @@ def generar_pdf(html):
     return HTML(string=html).write_pdf()
 
 
-def generar_docx(grupos, topics_despliegue, usuario):
-    """Construye el resumen como documento Word editable con el mismo contenido que el PDF."""
+def generar_docx(grupos, topics, usuario):
+    """Construye el resumen como documento Word editable con el mismo contenido que el PDF.
+
+    `topics` asocia cada nombre de repo con los topics relevantes de su sección
+    (de despliegue para los desplegados, no autorizados para los no autorizados, mi contenido para los que contienen mi contenido).
+    """
     documento = Document()
     documento.add_heading("Resumen de repositorios", 0)
 
@@ -61,11 +89,11 @@ def generar_docx(grupos, topics_despliegue, usuario):
         f"@{usuario} · {date.today().strftime('%d/%m/%Y')} · {total} repositorios"
     )
 
-    for titulo, clave, con_topics in SECCIONES:
+    for titulo, clave, con_topics, columna_topics in SECCIONES:
         repos = grupos[clave]
         documento.add_heading(titulo, level=1)
 
-        columnas = ["Nombre", "Visibilidad", "Topics de despliegue"] if con_topics else ["Nombre"]
+        columnas = ["Nombre", "Visibilidad", columna_topics] if con_topics else ["Nombre"]
         tabla = documento.add_table(rows=1, cols=len(columnas))
         tabla.style = "Light Grid Accent 1"
 
@@ -78,7 +106,7 @@ def generar_docx(grupos, topics_despliegue, usuario):
                 celdas[0].text = repo["name"]
                 if con_topics:
                     celdas[1].text = "Privado" if repo["private"] else "Público"
-                    celdas[2].text = ", ".join(topics_despliegue.get(repo["name"], []))
+                    celdas[2].text = ", ".join(topics.get(repo["name"], []))
         else:
             tabla.add_row().cells[0].text = "Ninguno"
 

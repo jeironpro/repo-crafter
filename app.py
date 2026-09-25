@@ -95,6 +95,8 @@ def descargar_resumen():
 
     grupos = resumen.clasificar_repos(repos)
     topics = {repo["name"]: resumen.topics_despliegue(repo) for repo in grupos["desplegados"]}
+    topics.update({repo["name"]: resumen.topics_no_autorizado(repo) for repo in grupos["no_autorizado"]})
+    topics.update({repo["name"]: resumen.topics_mi_contenido(repo) for repo in grupos["mi_contenido"]})
 
     if formato == "docx":
         contenido = resumen.generar_docx(grupos, topics, GITHUB_USER)
@@ -104,7 +106,7 @@ def descargar_resumen():
         html = render_template(
             "resumen.html",
             grupos=grupos,
-            topics_despliegue=topics,
+            topics=topics,
             tokens=tokens,
             usuario=GITHUB_USER,
             fecha=date.today().strftime("%d/%m/%Y"),
