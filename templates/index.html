@@ -62,6 +62,23 @@
                 </div>
                 <button type="button" class="btn btn--soft" id="abrir-modal-clona-repos">Clonar todo</button>
                 <button type="button" class="btn" id="abrir-modal-crea-repo">Crear repo</button>
+                <button type="button" class="btn btn--soft" id="abrir-seleccion" aria-pressed="false">
+                    <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
+                    Seleccionar
+                </button>
+            </div>
+            <div class="barra-seleccion" id="barra-seleccion" hidden>
+                <span class="material-symbols-outlined barra-seleccion__icono" aria-hidden="true">select_all</span>
+                <span class="barra-seleccion__info" id="seleccion-conteo">0 seleccionados</span>
+                <label class="barra-seleccion__todos">
+                    <input type="checkbox" id="seleccionar-todos">
+                    <span>Todo</span>
+                </label>
+                <div class="barra-seleccion__acciones">
+                    <button type="button" class="btn btn--soft" id="boton-clona-seleccion" disabled>Clonar</button>
+                    <button type="button" class="btn btn--coral" id="boton-elimina-seleccion" disabled>Eliminar</button>
+                    <button type="button" class="btn btn--soft" id="boton-cancelar-seleccion">Cancelar</button>
+                </div>
             </div>
         </div>
         <div class="estadisticas-globales">
@@ -180,6 +197,15 @@
                             </button>
                             <button type="button" class="boton-clonar" title="clonar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-clonar">content_copy</span>
+                            </button>
+                            <button type="button" class="boton-about boton-about-repo" title="gestionar about" data-nombre="{{ repo.name }}">
+                                <span class="material-symbols-outlined icono-about">description</span>
+                            </button>
+                            <button type="button" class="boton-pull boton-pull-repo" title="hacer pull" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                                <span class="material-symbols-outlined icono-pull">download</span>
+                            </button>
+                            <button type="button" class="boton-fetch boton-fetch-repo" title="hacer fetch" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
+                                <span class="material-symbols-outlined icono-fetch">sync</span>
                             </button>
                             <button type="button" class="boton-confirmar" title="confirmar" data-nombre="{{ repo.name }}" data-visibilidad="{{ 'privado' if repo.private else 'publico' }}">
                                 <span class="material-symbols-outlined icono-confirmar">heap_snapshot_large</span>
@@ -411,6 +437,95 @@
                 </div>
             </div>
         </div>
+        <!-- Modal about repo -->
+        <div class="contenedor-modal" id="modal-about-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1 id="titulo-modal-about">About</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-about-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-about-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="control">
+                            <label for="descripcion-about">Descripción</label>
+                            <textarea name="descripcion-about" id="descripcion-about" rows="3"></textarea>
+                        </div>
+                        <div class="control">
+                            <label for="web-about">Página web</label>
+                            <input type="url" name="web-about" id="web-about" placeholder="https://ejemplo.com">
+                        </div>
+                        <button type="submit" class="btn">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal pull repo -->
+        <div class="contenedor-modal" id="modal-pull-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>¿Desea hacer pull en este repo?</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-pull-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-pull-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-pull-repo">No</button>
+                        <button type="submit" class="btn btn--cyan">Si</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal fetch repo -->
+        <div class="contenedor-modal" id="modal-fetch-repo">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>¿Desea hacer fetch en este repo?</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-fetch-repo">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <form action="" method="post" id="form-fetch-repo">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-fetch-repo">No</button>
+                        <button type="submit" class="btn btn--cyan">Si</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal clona seleccion -->
+        <div class="contenedor-modal" id="modal-clona-seleccion">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>¿Desea clonar los repositorios seleccionados?</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-clona-seleccion">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <ul id="lista-clona-seleccion" class="lista-seleccion"></ul>
+                    <form action="/clona_repos_seleccion" method="post" id="form-clona-seleccion">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-clona-seleccion">No</button>
+                        <button type="submit" class="btn btn--cyan">Si, clonar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal elimina seleccion -->
+        <div class="contenedor-modal" id="modal-elimina-seleccion">
+            <div class="modal">
+                <div class="cabecera-modal">
+                    <h1>¿Desea eliminar los repositorios seleccionados?</h1>
+                    <span class="material-symbols-outlined" id="cerrar-modal-elimina-seleccion">close</span>
+                </div>
+                <div class="cuerpo-modal">
+                    <ul id="lista-elimina-seleccion" class="lista-seleccion"></ul>
+                    <form action="/elimina_repos" method="post" id="form-elimina-seleccion">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="button" class="btn btn--soft" id="boton-cerrar-modal-elimina-seleccion">No</button>
+                        <button type="submit" class="btn btn--coral">Si, eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </main>
     <footer>
         <div class="footer__inner">
@@ -433,5 +548,8 @@
     <script src="{{ url_for('static', filename='js/visibilidad.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pagina.js') }}"></script>
     <script src="{{ url_for('static', filename='js/estadisticas.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/about.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sincronizar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/seleccion.js') }}"></script>
 </body>
 </html>

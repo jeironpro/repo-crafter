@@ -123,6 +123,18 @@ def hacer_push(carpeta_repo):
     return push.returncode == 0
 
 
+def hacer_pull(carpeta_repo):
+    """Trae los cambios remotos de la rama actual del repo local."""
+    pull = _git(carpeta_repo, "pull", check=False)
+    return pull.returncode == 0
+
+
+def hacer_fetch(carpeta_repo):
+    """Descarga las referencias remotas sin integrarlas en la rama local."""
+    fetch = _git(carpeta_repo, "fetch", check=False)
+    return fetch.returncode == 0
+
+
 def crear_tag(carpeta_repo, version, mensaje):
     tag = _git_con_usuario(carpeta_repo, "tag", "-a", version, "-m", mensaje)
     if tag.returncode != 0:

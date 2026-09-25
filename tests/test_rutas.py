@@ -30,6 +30,15 @@ def test_index_muestra_repos_y_estadisticas(cliente, repo_falso, respuesta_fake)
     assert "publico-uno" in cuerpo
     assert "privado-uno" in cuerpo
     assert "Python" in cuerpo
+    assert "boton-about-repo" in cuerpo
+    assert "boton-pull-repo" in cuerpo
+    assert "boton-fetch-repo" in cuerpo
+    assert "modal-about-repo" in cuerpo
+    assert "modal-pull-repo" in cuerpo
+    assert "modal-fetch-repo" in cuerpo
+    assert "form-clona-seleccion" in cuerpo
+    assert "form-elimina-seleccion" in cuerpo
+    assert 'id="barra-seleccion"' in cuerpo
 
 
 def test_ruta_repo_rechaza_traversal():
