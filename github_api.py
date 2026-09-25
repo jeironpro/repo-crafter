@@ -140,6 +140,27 @@ def actualizar_about(nombre, descripcion, web):
     )
 
 
+def obtener_lenguajes(nombre):
+    """Devuelve el desglose completo de lenguajes del repo como {lenguaje: bytes}.
+
+    Al contrario que el campo ``language`` de ``/user/repos`` (solo el lenguaje
+    principal), este endpoint reporta todos los lenguajes presentes en el repo.
+    """
+    clave = f"lenguajes:{nombre}"
+    en_cache = _desde_cache(clave)
+    if en_cache is not None:
+        return en_cache
+
+    respuesta = requests.get(f"{url_repo(nombre)}/languages", headers=CABECERAS)
+    if respuesta.status_code != 200:
+        mensaje = respuesta.json().get("message", "Error desconocido")
+        raise RuntimeError(f"Error {respuesta.status_code}: {mensaje}")
+
+    datos = respuesta.json()
+    _a_cache(clave, datos)
+    return datos
+
+
 def estado_pagina(nombre):
     return requests.get(f"{url_repo(nombre)}/pages", headers=CABECERAS)
 

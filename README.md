@@ -12,7 +12,7 @@ El proyecto se mejoró visualmente usando el modelo de OpenCode.
 - **Sincronización**: hacer `git pull` o `git fetch` en cada repo clonado, además del commit y push habituales.
 - **Topics**: añade y quita topics de cada repo con validación.
 - **Explorador de archivos**: navega carpetas y archivos de cada repo (vía API de GitHub) y visualiza archivos de texto plano en un visor integrado.
-- **Resumen descargable**: genera un resumen clasificado (desplegados / públicos / privados / no autorizados / mi contenido) en **PDF** o **DOCX editable**, con una tabla final de todos los lenguajes de los repositorios.
+- **Resumen descargable**: genera un resumen clasificado (desplegados / públicos / privados / no autorizados / mi contenido) en **PDF** o **DOCX editable**, con una tabla final de todos los lenguajes presentes en los repositorios (también los secundarios), sin repetir.
 - **Búsqueda y paginación**: filtro instantáneo por nombre, visibilidad, página y topic; paginación client-side. El estado (filtros, página, explorador) se mantiene en la URL.
 
 ## Uso

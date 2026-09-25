@@ -71,19 +71,19 @@ def nombre_archivo(formato="pdf"):
     return f"resumen-repos-{date.today().isoformat()}.{formato}"
 
 
-def lenguajes_de_repos(repos):
-    """Cuenta el lenguaje principal de todos los repositorios.
+def lenguajes_de_repos(datos_lenguajes):
+    """Cuenta en cuántos repositorios aparece cada lenguaje.
 
+    `datos_lenguajes` asocia el nombre de cada repo con su desglose
+    {lenguaje: bytes} (todos los lenguajes presentes, no solo el principal).
     Devuelve una lista de pares (lenguaje, cantidad) sin repetidos, ordenada
-    de mayor a menor cantidad y, a igualdad de cantidad, alfabéticamente.
-    Se omiten los repositorios que no declaran lenguaje.
+    de mayor a menor cantidad y, a igualdad, alfabéticamente.
     """
-    contador = {}
-    for repo in repos:
-        lenguaje = repo.get("language")
-        if lenguaje:
-            contador[lenguaje] = contador.get(lenguaje, 0) + 1
-
+    lenguajes = {lenguaje for desglose in datos_lenguajes.values() for lenguaje in desglose}
+    contador = {
+        lenguaje: sum(1 for desglose in datos_lenguajes.values() if lenguaje in desglose)
+        for lenguaje in lenguajes
+    }
     return sorted(contador.items(), key=lambda par: (-par[1], par[0].lower()))
 
 
