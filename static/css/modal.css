@@ -157,7 +157,7 @@
   text-transform: uppercase;
   color: var(--color-muted);
 }
-.control input, .control select {
+.control input, .control select, .control textarea {
   width: 100%;
   min-width: 0;
   padding: 0.7rem 0.9rem;
@@ -169,8 +169,9 @@
   border-radius: var(--radius-input);
   transition: border-color var(--dur-short) ease, background var(--dur-short) ease;
 }
-.control input:hover, .control select:hover { border-color: var(--color-rule-2); }
-.control input:focus-visible, .control select:focus-visible {
+.control textarea { resize: vertical; min-height: 5.5rem; line-height: 1.5; }
+.control input:hover, .control select:hover, .control textarea:hover { border-color: var(--color-rule-2); }
+.control input:focus-visible, .control select:focus-visible, .control textarea:focus-visible {
   outline-offset: 0;
   background: var(--color-paper);
   border-color: var(--color-accent-2);
@@ -288,6 +289,29 @@ legend {
 
 /* Botones de confirmación Sí/No */
 .cuerpo-modal form button[type="submit"].btn { margin-top: 0.25rem; }
+
+/* Lista de repositorios seleccionados en los modales por selección */
+.lista-seleccion {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.lista-seleccion li {
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
 
 @media (max-width: 480px) {
   .contenedor-modal { padding: var(--space-sm); align-items: flex-end; }

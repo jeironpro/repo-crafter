@@ -42,6 +42,24 @@ def ruta_repo(visibilidad, nombre):
     return carpeta
 
 
+def seleccion_repos():
+    """Devuelve la lista de pares (visibilidad, nombre) validados del formulario.
+
+    Cada campo 'seleccionados' codifica un repo como 'visibilidad/nombre',
+    lo que permite validar la visibilidad y bloquear inyecciones de ruta.
+    """
+    pares = []
+    for codigo in request.form.getlist("seleccionados"):
+        visibilidad, separador, nombre = codigo.partition("/")
+        if (
+            separador
+            and visibilidad in VISIBILIDADES
+            and NOMBRE_REPO_RE.match(nombre or "")
+        ):
+            pares.append((visibilidad, nombre))
+    return pares
+
+
 @app.route('/', methods=["GET", "POST"])
 def index():
     contador_repo_privados = 0
@@ -207,6 +225,45 @@ def guarda_topics(nombre):
     return redirect("/")
 
 
+@app.route("/about_repo/<nombre>", methods=["GET"])
+def about_repo(nombre):
+    validar_nombre(nombre)
+
+    try:
+        repos = github_api.obtener_repos()
+    except RuntimeError as error:
+        return str(error), 503
+
+    repo = next((repo for repo in repos if repo["name"] == nombre), None)
+
+    if repo is None:
+        abort(404)
+
+    return {
+        "nombre": repo["name"],
+        "descripcion": repo.get("description") or "",
+        "web": repo.get("homepage") or "",
+    }
+
+
+@app.route("/about/<nombre>", methods=["POST"])
+def guarda_about(nombre):
+    validar_nombre(nombre)
+
+    descripcion = request.form.get("descripcion-about", "").strip()
+    web = request.form.get("web-about", "").strip()
+
+    respuesta = github_api.actualizar_about(nombre, descripcion, web)
+
+    if respuesta.status_code in [200, 204]:
+        github_api.limpiar_cache()
+        flash(f"About de '{nombre}' actualizado correctamente", "success")
+    else:
+        flash(f"No se pudo actualizar el about de '{nombre}'", "error")
+
+    return redirect("/")
+
+
 @app.route("/cambia_nombre/<nombre_actual>", methods=["POST"])
 def cambia_nombre(nombre_actual):
     validar_nombre(nombre_actual)
@@ -257,6 +314,34 @@ def clona_repos():
     return redirect("/")
 
 
+@app.route("/clona_repos_seleccion", methods=["POST"])
+def clona_repos_seleccion():
+    pares = seleccion_repos()
+
+    if not pares:
+        flash("Debes seleccionar al menos un repositorio", "error")
+        return redirect("/")
+
+    clonados = 0
+    errores = 0
+
+    for visibilidad, nombre in pares:
+        mensaje = git_ops.clonar_repo(nombre, visibilidad)
+        if "correctamente" in mensaje:
+            clonados += 1
+        else:
+            errores += 1
+
+    if clonados and errores:
+        flash(f"{clonados} repositorio(s) clonados y {errores} con errores", "success")
+    elif clonados:
+        flash(f"{clonados} repositorio(s) clonados correctamente", "success")
+    else:
+        flash("No se pudo clonar ninguno de los repositorios seleccionados", "error")
+
+    return redirect("/")
+
+
 @app.route("/estado_repo/<visibilidad>/<nombre>", methods=["GET"])
 def estado_repo(visibilidad, nombre):
     carpeta_repo = ruta_repo(visibilidad, nombre)
@@ -296,6 +381,34 @@ def push_repo(visibilidad, nombre):
         flash(f"Repositorio actualizado en {carpeta_repo}", "success")
     else:
         flash(f"Error al actualizar el repositorio en {carpeta_repo}", "error")
+
+    return redirect("/")
+
+
+@app.route("/pull_repo/<visibilidad>/<nombre>", methods=["POST"])
+def pull_repo(visibilidad, nombre):
+    carpeta_repo = ruta_repo(visibilidad, nombre)
+
+    if not carpeta_repo.exists():
+        flash(f"El repositorio local '{nombre}' no existe", "error")
+    elif git_ops.hacer_pull(carpeta_repo):
+        flash(f"Pull realizado correctamente en '{nombre}'", "success")
+    else:
+        flash(f"Error al hacer pull en '{nombre}'", "error")
+
+    return redirect("/")
+
+
+@app.route("/fetch_repo/<visibilidad>/<nombre>", methods=["POST"])
+def fetch_repo(visibilidad, nombre):
+    carpeta_repo = ruta_repo(visibilidad, nombre)
+
+    if not carpeta_repo.exists():
+        flash(f"El repositorio local '{nombre}' no existe", "error")
+    elif git_ops.hacer_fetch(carpeta_repo):
+        flash(f"Fetch realizado correctamente en '{nombre}'", "success")
+    else:
+        flash(f"Error al hacer fetch en '{nombre}'", "error")
 
     return redirect("/")
 
@@ -364,6 +477,29 @@ def elimina_repo(nombre):
 
     github_api.limpiar_cache()
     flash(f"Repositorio '{nombre}' eliminado correctamente", "success")
+    return redirect("/")
+
+
+@app.route("/elimina_repos", methods=["POST"])
+def elimina_repos():
+    pares = seleccion_repos()
+
+    if not pares:
+        flash("Debes seleccionar al menos un repositorio", "error")
+        return redirect("/")
+
+    eliminados = 0
+
+    for _, nombre in pares:
+        if github_api.eliminar_repo(nombre).status_code == 204:
+            eliminados += 1
+
+    if eliminados:
+        github_api.limpiar_cache()
+        flash(f"{eliminados} repositorio(s) eliminados correctamente", "success")
+    else:
+        flash("No se pudo eliminar ninguno de los repositorios seleccionados", "error")
+
     return redirect("/")
 
 

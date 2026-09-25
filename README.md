@@ -6,8 +6,10 @@ El objetivo es demostrar buenas prácticas de programación, organización y doc
 El proyecto se mejoró visualmente usando el modelo de OpenCode.
 
 ## Características
-- **Gestión de repositorios**: crear, clonar todos, renombrar y eliminar repos directamente desde la interfaz.
+- **Gestión de repositorios**: crear, clonar (individual, todos o por selección), renombrar y eliminar (individual o por selección) repos directamente desde la interfaz.
 - **Visibilidad y despliegue**: alterna público/privado y activa/desactiva GitHub Pages por repo.
+- **About de GitHub**: gestiona la descripción y la página web (homepage) del "About" de cada repo desde un modal.
+- **Sincronización**: hacer `git pull` o `git fetch` en cada repo clonado, además del commit y push habituales.
 - **Topics**: añade y quita topics de cada repo con validación.
 - **Explorador de archivos**: navega carpetas y archivos de cada repo (vía API de GitHub) y visualiza archivos de texto plano en un visor integrado.
 - **Resumen descargable**: genera un resumen clasificado (desplegados / públicos / privados) en **PDF** o **DOCX editable**.

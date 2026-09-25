@@ -479,20 +479,82 @@ form[action*="crea_elimina_pagina"] .visibilidad input:checked + .deslizante { b
 }
 .boton-archivos:hover, .boton-renombrar:hover, .boton-topics:hover { --tile: var(--color-paper-3); --tile-ink: var(--color-ink); }
 .boton-clonar { --tile: var(--tint-lavender); --tile-ink: var(--color-lavender-deep); }
+.boton-pull { --tile: var(--tint-mint); --tile-ink: var(--color-mint-deep); }
+.boton-fetch { --tile: var(--tint-cyan); --tile-ink: var(--color-accent-2-deep); }
 .boton-confirmar { --tile: var(--tint-pear); --tile-ink: var(--color-accent-deep); }
 .boton-actualizar { --tile: var(--tint-cyan); --tile-ink: var(--color-accent-2-deep); }
 .boton-taguear { --tile: var(--tint-mint); --tile-ink: var(--color-mint-deep); }
 .boton-eliminar { --tile: var(--tint-coral); --tile-ink: var(--color-accent-3-deep); }
-.boton-archivos:hover, .boton-renombrar:hover, .boton-topics:hover, .boton-clonar:hover, .boton-confirmar:hover, .boton-actualizar:hover, .boton-taguear:hover, .boton-eliminar:hover {
+.boton-archivos:hover, .boton-renombrar:hover, .boton-topics:hover, .boton-clonar:hover, .boton-about:hover, .boton-pull:hover, .boton-fetch:hover, .boton-confirmar:hover, .boton-actualizar:hover, .boton-taguear:hover, .boton-eliminar:hover {
   transform: translateY(-2px);
   box-shadow: 0 4.5px 0 0 oklch(20% 0.012 250 / 0.14);
 }
-.boton-archivos:active, .boton-renombrar:active, .boton-topics:active, .boton-clonar:active, .boton-confirmar:active, .boton-actualizar:active, .boton-taguear:active, .boton-eliminar:active {
+.boton-archivos:active, .boton-renombrar:active, .boton-topics:active, .boton-clonar:active, .boton-about:active, .boton-pull:active, .boton-fetch:active, .boton-confirmar:active, .boton-actualizar:active, .boton-taguear:active, .boton-eliminar:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 0 oklch(20% 0.012 250 / 0.12);
   transition-duration: 70ms;
 }
-.icono-archivos, .icono-renombrar, .icono-topics, .icono-clonar, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 18px; }
+.icono-archivos, .icono-renombrar, .icono-topics, .icono-clonar, .icono-about, .icono-pull, .icono-fetch, .icono-confirmar, .icono-actualizar, .icono-taguear, .icono-eliminar { font-size: 18px; }
+
+/* ── Modo selección ──────────────────────────────────────── */
+.barra-seleccion {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  flex: 1 1 100%;
+  padding: 0.6rem 0.9rem;
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  margin-top: var(--space-sm);
+}
+.barra-seleccion[hidden] { display: none; }
+.barra-seleccion__icono { color: var(--color-accent-2-deep); }
+.barra-seleccion__info {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-2);
+}
+.barra-seleccion__todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.barra-seleccion__todos input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent-2-deep);
+}
+.barra-seleccion__acciones { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.seleccion-checkbox {
+  display: none;
+  width: 17px;
+  height: 17px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  accent-color: var(--color-accent-2-deep);
+  cursor: pointer;
+}
+.modo-seleccion .seleccion-checkbox { display: inline-block; }
+.modo-seleccion .seleccion-checkbox:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+.tarjeta-repo.is-seleccionado {
+  border-color: var(--color-accent-2);
+  box-shadow: 0 0 0 2.5px var(--tint-cyan), var(--shadow-card);
+}
+.modo-seleccion .tarjeta-repo { border-style: dashed; }
 
 /* ── Paginación ──────────────────────────────────────────── */
 .paginacion {
@@ -585,7 +647,7 @@ footer {
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1080px) {
   .botones { gap: 0.3rem; }
-  .boton-archivos, .boton-renombrar, .boton-topics, .boton-clonar, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
+.boton-archivos, .boton-renombrar, .boton-topics, .boton-clonar, .boton-about, .boton-pull, .boton-fetch, .boton-confirmar, .boton-actualizar, .boton-taguear, .boton-eliminar {
     width: 30px;
     height: 30px;
     border-radius: 10px;

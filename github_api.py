@@ -128,6 +128,18 @@ def actualizar_topics(nombre, topics):
     )
 
 
+def actualizar_about(nombre, descripcion, web):
+    """Actualiza el about del repositorio (descripción y página web).
+
+    Una cadena vacía limpia el campo correspondiente en GitHub.
+    """
+    return requests.patch(
+        url_repo(nombre),
+        headers=CABECERAS,
+        json={"description": descripcion, "homepage": web},
+    )
+
+
 def estado_pagina(nombre):
     return requests.get(f"{url_repo(nombre)}/pages", headers=CABECERAS)
 
