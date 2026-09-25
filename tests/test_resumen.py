@@ -62,34 +62,44 @@ def test_nombre_archivo_incluye_fecha():
     assert resumen.nombre_archivo("docx").endswith(".docx")
 
 
-def test_lenguajes_de_repos_cuenta_sin_repetir_y_ordena(repo_falso):
-    repos = [
-        repo_falso(nombre="a", lenguaje="Python"),
-        repo_falso(nombre="b", lenguaje="HTML"),
-        repo_falso(nombre="c", lenguaje="Python"),
-        repo_falso(nombre="d", lenguaje=None),
-        repo_falso(nombre="e", lenguaje="Jupyter Notebook"),
+def test_lenguajes_de_repos_une_desgloses_sin_repetir(repo_falso):
+    datos = {
+        "a": {"Python": 100, "HTML": 50},
+        "b": {"Python": 200, "Markdown": 10},
+        "c": {"HTML": 80},
+        "d": {},
+    }
+
+    assert resumen.lenguajes_de_repos(datos) == [
+        ("HTML", 2), ("Python", 2), ("Markdown", 1)
     ]
 
-    assert resumen.lenguajes_de_repos(repos) == [
-        ("Python", 2), ("HTML", 1), ("Jupyter Notebook", 1)
-    ]
+
+def test_lenguajes_de_repos_solo_define_desgloses_vacios():
+    assert resumen.lenguajes_de_repos({"a": {}, "b": {}}) == []
 
 
 def test_generar_docx_produce_documento_con_seis_tablas(repo_falso):
     repos = [
-        repo_falso(nombre="b-pages", topics=["github-pages"], lenguaje="Python"),
-        repo_falso(nombre="a-privado", privado=True, lenguaje="HTML"),
-        repo_falso(nombre="sin-acceso", topics=["unauthorized"], lenguaje="Python"),
-        repo_falso(nombre="mi-contenido", topics=["my-content"], lenguaje=None),
+        repo_falso(nombre="b-pages", topics=["github-pages"]),
+        repo_falso(nombre="a-privado", privado=True),
+        repo_falso(nombre="sin-acceso", topics=["unauthorized"]),
+        repo_falso(nombre="mi-contenido", topics=["my-content"]),
     ]
     grupos = resumen.clasificar_repos(repos)
     topics = {r["name"]: resumen.topics_despliegue(r) for r in grupos["desplegados"]}
     topics.update({r["name"]: resumen.topics_no_autorizado(r) for r in grupos["no_autorizado"]})
     topics.update({r["name"]: resumen.topics_mi_contenido(r) for r in grupos["mi_contenido"]})
 
+    lenguajes = resumen.lenguajes_de_repos({
+        "b-pages": {"Python": 120, "HTML": 200},
+        "a-privado": {"HTML": 80},
+        "sin-acceso": {"Python": 300},
+        "mi-contenido": {},
+    })
+
     documento = Document(BytesIO(
-        resumen.generar_docx(grupos, topics, "usuario-test", resumen.lenguajes_de_repos(repos))
+        resumen.generar_docx(grupos, topics, "usuario-test", lenguajes)
     ))
 
     assert len(documento.tables) == 6
@@ -122,16 +132,30 @@ def test_generar_docx_produce_documento_con_seis_tablas(repo_falso):
 
     lenguajes = documento.tables[5]
     assert [celda.text for celda in lenguajes.rows[0].cells] == ["Lenguaje", "Repositorios"]
-    assert lenguajes.rows[1].cells[0].text == "Python"
+    assert lenguajes.rows[1].cells[0].text == "HTML"
     assert lenguajes.rows[1].cells[1].text == "2"
-    assert lenguajes.rows[2].cells[0].text == "HTML"
-    assert lenguajes.rows[2].cells[1].text == "1"
+    assert lenguajes.rows[2].cells[0].text == "Python"
+    assert lenguajes.rows[2].cells[1].text == "2"
+
+
+def _respuestas_resumen(repos, lenguajes_por_repo):
+    """Fake de requests.get que sirve /user/repos paginado y /languages por repo."""
+    def _obtener(url, **kwargs):
+        if "languages" in url:
+            nombre = url.split("/")[-2]
+            return RespuestaFake(datos=lenguajes_por_repo.get(nombre, {}))
+        if "user/repos" in url and kwargs.get("params", {}).get("page") == 2:
+            return RespuestaFake(datos=[])
+        return RespuestaFake(datos=repos)
+
+    return _obtener
 
 
 def test_ruta_resumen_formato_docx_devuelve_word_valido(cliente, repo_falso):
-    repos = [repo_falso(nombre="con-pages", topics=["github-pages"], lenguaje="Python")]
+    repos = [repo_falso(nombre="con-pages", topics=["github-pages"])]
+    lenguajes = {"con-pages": {"Python": 150, "HTML": 60}}
 
-    with patch("github_api.requests.get", side_effect=[RespuestaFake(datos=repos), RespuestaFake(datos=[])]):
+    with patch("github_api.requests.get", side_effect=_respuestas_resumen(repos, lenguajes)):
         respuesta = cliente.get("/resumen?formato=docx")
 
     assert respuesta.status_code == 200
@@ -141,8 +165,9 @@ def test_ruta_resumen_formato_docx_devuelve_word_valido(cliente, repo_falso):
     documento = Document(BytesIO(respuesta.data))
     assert len(documento.tables) == 6
     assert documento.tables[0].rows[1].cells[0].text == "con-pages"
-    assert documento.tables[5].rows[1].cells[0].text == "Python"
+    assert documento.tables[5].rows[1].cells[0].text == "HTML"
     assert documento.tables[5].rows[1].cells[1].text == "1"
+    assert documento.tables[5].rows[2].cells[0].text == "Python"
 
 
 def test_ruta_resumen_formato_invalido_rechaza(cliente):
@@ -151,12 +176,17 @@ def test_ruta_resumen_formato_invalido_rechaza(cliente):
 
 def test_ruta_resumen_devuelve_pdf(cliente, repo_falso):
     repos = [
-        repo_falso(nombre="con-pages", topics=["github-pages"], lenguaje="Python"),
-        repo_falso(nombre="sin-pages", lenguaje="HTML"),
-        repo_falso(nombre="privado-sin-pages", privado=True, lenguaje=None),
+        repo_falso(nombre="con-pages", topics=["github-pages"]),
+        repo_falso(nombre="sin-pages"),
+        repo_falso(nombre="privado-sin-pages", privado=True),
     ]
+    lenguajes = {
+        "con-pages": {"JavaScript": 300, "HTML": 100},
+        "sin-pages": {"JavaScript": 50},
+        "privado-sin-pages": {},
+    }
 
-    with patch("github_api.requests.get", side_effect=[RespuestaFake(datos=repos), RespuestaFake(datos=[])]), \
+    with patch("github_api.requests.get", side_effect=_respuestas_resumen(repos, lenguajes)), \
          patch("resumen.generar_pdf", return_value=b"%PDF-fake") as generar:
         respuesta = cliente.get("/resumen")
 
